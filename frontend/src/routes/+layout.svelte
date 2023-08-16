@@ -2,8 +2,16 @@
 	import Header from './Header.svelte';
 	import Footer from './Footer.svelte';
 	import './styles.css';
+	import { onMount } from 'svelte';
+	import { initDapp } from '$lib/ts';
+  	import { detectedWallets } from '$lib/ts/connection';
 
-
+	onMount(() => {
+		initDapp().then(() => {
+			console.log('Dapp initialized');
+			console.log($detectedWallets);
+		});
+	})
 </script>
 
 <div class="app">
