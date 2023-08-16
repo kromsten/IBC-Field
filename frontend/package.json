@@ -24,6 +24,9 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@keplr-wallet/types": "^0.12.20"
+		"@akashnetwork/akashjs": "^0.4.8",
+		"@keplr-wallet/types": "^0.12.20",
+		"chain-registry": "^1.18.1",
+		"secretjs": "^1.9.3"
 	}
 }

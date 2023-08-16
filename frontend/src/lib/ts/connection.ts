@@ -15,7 +15,9 @@ export const detectWallets = () => {
     waitUntil(keplrDetected)
     .then(() => {
         detectedWallets.update((wallets) => {
-            return [...wallets, SupportedWallets.Keplr];
+            return wallets.includes(SupportedWallets.Keplr) 
+                ? wallets 
+                : [...wallets, SupportedWallets.Keplr]
         })
     })
     .catch((err) => {
