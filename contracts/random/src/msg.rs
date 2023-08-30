@@ -15,5 +15,5 @@ pub enum ExecuteMsg {
 pub enum QueryMsg {
     GetMyRandomNumber {
         permit: Permit
-    },
+    }
 }
