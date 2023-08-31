@@ -3,7 +3,7 @@
 </script>
 
 
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 30.4 26.6" style="enable-background:new 0 0 30.4 26.6;" xml:space="preserve">
+<svg class="w-5" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 30.4 26.6" style="enable-background:new 0 0 30.4 26.6;" xml:space="preserve">
 	<style type="text/css">
 		.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#ED3524;}
 		.st1{fill-rule:evenodd;clip-rule:evenodd;fill:#AE1E23;}
@@ -12,7 +12,7 @@
 	{ #if loading}
 	<animateTransform 
 		attributeName="transform" 
-		dur="2.0s" 
+		dur="0.8s" 
 		type="rotate" 
 		from="0" to="360"
 		repeatCount="indefinite" 
@@ -33,13 +33,3 @@
 		</g>
 	</g>
 </svg>
-
-
-<style>
-
-
-   /*  svg { 
-		max-width: 56%;
-		max-height: 65%;
-	} */
-</style>

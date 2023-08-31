@@ -1,4 +1,4 @@
-<svg class="w-10" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+<svg class="w-8" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 504.127 504.127" style="enable-background:new 0 0 504.127 504.127;" xml:space="preserve">
     <path style="fill:#A86743;" d="M484.165,252.07c0-46.773-2.781-90.293-16.313-126.826c20.519-42.756,27.845-83.409,27.845-101.652
         c0-46.726-109.08-9.618-243.633-9.618S8.43-23.134,8.43,23.591c0,17.558,6.735,55.887,25.553,96.878

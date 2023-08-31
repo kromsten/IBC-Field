@@ -1,5 +1,6 @@
-<script>
-  import Akash from "./Akash.svelte";
+<script lang="ts">
+  import { filter } from "@skeletonlabs/skeleton";
+import Akash from "./Akash.svelte";
   import Clover from "./Clover.svelte";
   import Fertilizer from "./Fertilizer.svelte";
   import Shovel from "./Shovel.svelte";
@@ -9,70 +10,69 @@
 
     let loading = false;
 
-    const powerups  = {
-        shovel: false,
-        clover: false,
-        fertilizer: false
+    enum PowerUpType {
+        Shovel = 'shovel',
+        Clover = 'clover',
+        Fertilizer = 'fertilizer'
+    }
+
+
+    const powerups : {[key: string] : { active: boolean, icon: typeof Shovel}} = {
+        shovel: {
+            active: false,
+            icon: Shovel
+        },
+        clover: {
+            active: false,
+            icon: Clover
+        },
+        fertilizer: {
+            active: false,
+            icon: Fertilizer
+        }
     }
 
     const submit = () => {
 
-        /* if (!loading) {
+        if (!loading) {
             loading = true;
             setTimeout(() => {
                 loading = false;
 
                 Object.keys(powerups).forEach(key => {
-                    powerups[key] = false;
-                })
-
-                addNotification({
-                    text: 'Ok',
-                    position: 'top-center',
-                    removeAfter: 2500
+                    powerups[key].active = false;
                 })
 
             }, 2000);
-        }  */
+        }
     }
 
 
 </script>
 
 
-<div class="bg-red-200">
-    <div class="center mb-2">
-        <form on:submit|preventDefault={submit}>
-            <button type="submit" class="btn btn-outline-success btn-sm">
-                <Akash {loading} /> 
-                { #if !loading}<span>{ cost }</span>{/if}
-            </button>
-        </form>
-    </div>
+<div class="bg-purple-50 px-2 border border-1 border-primary-400/50">
+    <form on:submit|preventDefault={submit} class="center gap-3 py-2 px-2">
+        <span class="text-sm">Buy with</span>
+        <button class="btn variant-filled-primary px-0">
+            <Akash {loading} /> 
+            { #if !loading || true }<span>{ cost } AKT</span>{/if}
+        </button>
+    </form>
 
     <hr class="dropdown-divider">
-
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div class="center gap-3 items"> 
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <span class:active={powerups.shovel} on:click={() => powerups.shovel = !powerups.shovel} type="button">
-            <Shovel/>
-        </span>
-        <button on:click={() => powerups.shovel = !powerups.shovel} type="button">
-            <Shovel/>
-        </button>
-        <button on:click={() => powerups.shovel = !powerups.shovel} type="button">
-            <Shovel/>
-        </button>
+    
+    <div class="gap-3 py-2 px-2">
+        <div class="center text-xs mb-2">Powerups: {Object.values(powerups).filter(p => p.active).length}</div>
+        <div class="center gap-3 items"> 
+            { #each Object.entries(powerups) as [key, info] (key) }
+                <button class:active={info.active} on:click={() => powerups[key].active = !info.active} type="button">
+                    <svelte:component this={info.icon} />
+                </button>
+            {/each}
+        </div>
     </div>
-    <!-- <ul>
-        <ul class="center p-5 gap-3">
-            <li class:active={powerups.shovel} on:click={() => powerups.shovel = !powerups.shovel} class="col"></li>
-            <li class:active={powerups.clover} on:click={() => powerups.clover = !powerups.clover} class="col"><Clover/></li>
-            <li class:active={powerups.fertilizer} on:click={() => powerups.fertilizer = !powerups.fertilizer} class="col"><Fertilizer/></li>
-        </ul>
-    </ul> -->
+
 </div>
 
 
@@ -80,61 +80,19 @@
 
 <style>
 
-    .dropdown-menu {
-        max-width: 5em;
-        border: 1px solid rgb(117, 26, 102);
-        background-color: rgb(255, 255, 255);    
-    }
-
-    
-    ul {
-        list-style-type: none;
-        padding-inline-start: 0;
-        margin-bottom: 0;
-    }
-
     hr {
         color: #402f0fd6;
     }
 
 
-    button {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    button:focus  {
+    /* button:focus  {
         background-color: #fff;
         box-shadow: 0 0 0 0.25rem rgb(25 135 84 / 50%);
-    }
+    } */
 
-    button:focus:hover {
-        color: #42ae7c;
-    }
-
-    .col {
-        max-width: 33%;
-    }
-    
-    :global(button:hover:not(:focus) .st0) {
-        fill: white;
-    }
-
-    :global(#context-drop li svg) {
-        max-height: 1.5em;
-
-    }
-
-    :global(#context-drop button > svg) {
-        min-height: 1.5em;
-        max-height: 2em;
-        margin-right: 0.1em;
-    }
-
-    :global(.items .active  svg) {
-        filter: drop-shadow(0 0 0.35em rgb(90, 2, 90));
-    }
-    
+    /* button:focus:hover {
+        color: #c64343;
+    } */
+ 
 
 </style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Ada from "./AkashLogo.svelte";
+    import Akash from "$lib/components/graphics/Akash.svelte";
     //import { getNotificationsContext } from 'svelte-notifications';
     
     export let labelled = "";
@@ -15,7 +15,7 @@
 
     const submit = () => {
 
-        /* if (toBuy == 0) return;
+        if (toBuy == 0) return;
         
         if (!loading) {
             loading = true;
@@ -24,17 +24,17 @@
                 count += toBuy;
                 loading = false;
 
-                addNotification({
+                /* addNotification({
                     position: 'top-center',
                     removeAfter: 4000,
                     type: "purchase",
                     count: toBuy,
                     text : "Check",
                     name : name
-                })
+                }) */
 
             }, 5000);
-        }  */
+        } 
     }
 
 
@@ -53,7 +53,7 @@
             <div class="input-group input-group-sm d-flex justify-content-around">
                 <input id="buy-{name}" class="form-control col" type="number" min="1" max="99" bind:value={toBuy} disabled={loading}/>
                 <button type="submit" class="btn btn-outline-success btn-sm col" >
-                    <Ada {loading} /> 
+                    <Akash {loading} /> 
                     { #if !loading}<span>{ toBuy * price }</span>{/if}
                 </button>
             </div>

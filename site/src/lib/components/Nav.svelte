@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   
   import MenuDrop from "$lib/components/MenuDrop.svelte";
   
@@ -10,6 +10,8 @@
   import Fertilizer from "./graphics/Fertilizer.svelte";
   import Shovel from "./graphics/Shovel.svelte";
   import Clover from "./graphics/Clover.svelte";
+  import ItemDrop from "./ItemDrop.svelte";
+  import { popup, type PopupSettings } from "@skeletonlabs/skeleton";
 
   
 
@@ -26,29 +28,44 @@
     if (connected) connect();
   })
 
-  const counts = {
-    plus : {
-      count: 0,
-      price: 5,
-      text: "Extra shovel let you ignore the time limit and start digging sooner",
-      name: "Shovel"
-    },
-    ignore : {
-      count: 0,
-      price: 10,
-      text: "Increases your luck and the  probability to find something valuable",
-      name: "Clover"
-    },
-    fert : {
-      count: 0,
-      price: 8,
-      text: "Speed up the growing process and let you dig a recovering hole earlier",
-      name: "Fertilizer"
-    },
+  type CountValue = {
+    count: number,
+    price: number,
+    text: string,
+    name: string
   }
 
+  const counts : {[key: string] : CountValue} = {
+      plus : {
+        count: 0,
+        price: 5,
+        text: "Extra shovel let you ignore the time limit and start digging sooner",
+        name: "Shovel"
+      },
+      ignore : {
+        count: 0,
+        price: 10,
+        text: "Increases your luck and the  probability to find something valuable",
+        name: "Clover"
+      },
+      fert : {
+        count: 0,
+        price: 8,
+        text: "Speed up the growing process and let you dig a recovering hole earlier",
+        name: "Fertilizer"
+      },
+    }
+
+    const itemDropdownPop: PopupSettings = {
+        event: 'click',
+        target: 'itemDropdowm',
+        placement: 'bottom',
+        closeQuery: "",
+    };
 
 </script>
+
+
 
 
 
@@ -57,7 +74,7 @@
   <div class="center gap-5 gap-x-8">
     { #each Object.entries(counts) as [key, value] }
       
-        <li  id="dropdownMenuButton-{key}" class="center gap-3" >
+        <li id="dropdownMenuButton-{key}" class="center gap-3" use:popup={itemDropdownPop}>
           
           { #if key == "fert"}
             <Fertilizer />
@@ -69,14 +86,14 @@
           <span>x</span>
           <span>{value.count}</span>
         </li>
+
+        <div data-popup="itemDropdowm">
+          <ItemDrop count={value.count} labelled={"dropdownMenuButton-" + key } {...value} />
+        </div>
       
-      <!--       <ItemDrop bind:count={counts[key].count} labelled={"dropdownMenuButton-" + key } {...value} />
-       -->
+      
           {/each}
   </div>
-  
-
-
 </nav>
 
 
