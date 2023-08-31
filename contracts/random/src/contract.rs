@@ -1,7 +1,20 @@
-use cosmwasm_std::{entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, StdError, Addr, Api};
-use secret_toolkit::permit::Permit;
+use cosmwasm_std::{
+    entry_point, 
+    to_binary, 
+    Binary, 
+    Deps, 
+    DepsMut, 
+    Env, 
+    MessageInfo, 
+    Response, 
+    StdResult
+};
 
-use crate::{msg::{ExecuteMsg, InstantiateMsg, QueryMsg}, state::{RANDOM_NUMBERS, PERMITS_KEY}, random::{try_saving_random_number, get_saved_random_number}};
+use crate::{
+    msg::{ExecuteMsg, InstantiateMsg, QueryMsg}, 
+    random::{try_saving_random_number, get_saved_random_number}, error::ContractError
+};
+
 
 #[entry_point]
 pub fn instantiate(
@@ -18,7 +31,7 @@ pub fn instantiate(
 }
 
 #[entry_point]
-pub fn execute(deps: DepsMut, env: Env, _info: MessageInfo, msg: ExecuteMsg) -> StdResult<Response> {
+pub fn execute(deps: DepsMut, env: Env, _info: MessageInfo, msg: ExecuteMsg) -> Result<Response, ContractError> {
     match msg {
         ExecuteMsg::UpdateMyRandomNumber { permit } => try_saving_random_number(deps, env, permit)
     }

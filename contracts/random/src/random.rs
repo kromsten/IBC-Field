@@ -1,9 +1,22 @@
 use cosmwasm_std::{DepsMut, Env, StdResult, Response, Deps, StdError};
 use secret_toolkit::permit::Permit;
 
-use crate::{utils::address_from_permit, state::RANDOM_NUMBERS};
+use crate::{utils::address_from_permit, state::RANDOM_NUMBERS, error::ContractError};
 
-pub fn try_saving_random_number(deps: DepsMut, env: Env, permit: Permit) -> StdResult<Response> {
+
+pub fn randomness_using_address(address: &str, seed: u8) -> u8 {
+    // xor last 4 bytes of address
+    let mut result = seed;
+    let bytes = address.as_bytes();
+
+    for byte in bytes.iter().rev().take(4) {
+        result ^= byte;
+    }
+    result
+}
+
+
+pub fn try_saving_random_number(deps: DepsMut, env: Env, permit: Permit) -> Result<Response, ContractError> {
     let address = address_from_permit(deps.as_ref(), &env, &permit)?;
     let random = env.block.random.unwrap().0[0] % u8::MAX;
     deps.api.debug(format!("Random number is {}", random).as_str());

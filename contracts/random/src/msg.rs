@@ -17,3 +17,7 @@ pub enum QueryMsg {
         permit: Permit
     }
 }
+
+
+#[cw_serde]
+pub struct OpenCellResponse {}
