@@ -15,6 +15,9 @@ pub enum ContractError {
     #[error("A dublicate of an powerup was submitted")]
     NotUnique{},
 
+    #[error("This IBC channel is not supported")]
+    NotSupportedChannel{},
+
     #[error("Cell is on cooldown. Need to wait for {0} more seconds")]
     CellCooldown(u64),
 
@@ -26,6 +29,9 @@ pub enum ContractError {
 
     #[error("Semver parsing error: {0}")]
     SemVer(String),
+
+    #[error("Amount is too big")]
+    AmountOverflow {},
 }
 
 

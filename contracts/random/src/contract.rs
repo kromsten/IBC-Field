@@ -13,7 +13,7 @@ use cosmwasm_std::{
 use crate::{
     msg::{ExecuteMsg, InstantiateMsg, QueryMsg, IBCLifecycleComplete}, 
     random::{try_saving_random_number, get_saved_random_number}, error::ContractError,
-    ibc::{ibc_transfer, ibc_lifecycle_complete, ibc_timeout}
+    ibc::{ibc_transfer_incoming, ibc_lifecycle_complete, ibc_timeout}
 };
 
 
@@ -44,8 +44,8 @@ pub fn execute(deps: DepsMut, env: Env, _info: MessageInfo, msg: ExecuteMsg) -> 
             to_address,
             amount,
             timeout_sec_from_now,
-        } => ibc_transfer(env, channel_id, to_address, amount, timeout_sec_from_now),
-        
+        } => ibc_transfer_incoming(env, channel_id, to_address, amount, timeout_sec_from_now),
+
         ExecuteMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCAck {
             channel,
             sequence,

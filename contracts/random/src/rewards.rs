@@ -20,6 +20,7 @@ pub fn reward(
     };
 
     // TODO: Add attributes
+    attributes.push(Attribute::new("action", "reward"));
 
     msgs.push(msg);
 
@@ -43,9 +44,9 @@ fn reward_scrt(
 }
 
 fn reward_remote(
-    deps: Deps,
-    sender: Addr,
-    amount: u128,
+    _deps: Deps,
+    _sender: Addr,
+    _amount: u128,
 ) -> Result<BankMsg, ContractError> {
     todo!("Implement this")
 }

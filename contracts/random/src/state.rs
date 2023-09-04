@@ -37,7 +37,8 @@ enum Keys {
     Config = b'g',
     Powerups = b'p',
     UserCooldowns = b'd',
-    Cells = b'c'
+    Cells = b'c',
+    Channels = b'h'
 }
 
 impl Keys {
@@ -64,12 +65,16 @@ pub static RANDOM_NUMBERS: Keymap<String, u8, Bincode2, WithoutIter> =
             KeymapBuilder::new(Keys::RandomNumbers.as_bytes()).without_iter().build();
 
 
+pub static CHANNELS: Keymap<String, String, Json, WithoutIter> =
+            KeymapBuilder::new(Keys::Channels.as_bytes()).without_iter().build();
+
+
 pub static CONFIG: Item<Config, Bincode2> = Item::new(Keys::Config.as_bytes());
 
 pub static POWERUPS: Keymap<Addr, (Powerup, u8), Json, WithoutIter> =
             KeymapBuilder::new(Keys::Powerups.as_bytes()).without_iter().build();
 
-pub static USER_COOLDOWNS: Keymap<Addr, u64, Json, WithoutIter> =
+pub static USER_COOLDOWNS: Keymap<Addr, u64, Bincode2, WithoutIter> =
     KeymapBuilder::new(Keys::UserCooldowns.as_bytes()).without_iter().build();
 
 

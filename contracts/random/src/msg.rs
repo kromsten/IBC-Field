@@ -45,6 +45,12 @@ pub enum IBCLifecycleComplete {
     },
 }
 
+#[cw_serde]
+pub struct TransferIBCRewardsMsg {
+    pub channel: String,
+    pub remote_address: String,
+    pub timeout: u64,
+}
 
 
 #[cw_serde]
