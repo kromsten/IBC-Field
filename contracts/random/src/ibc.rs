@@ -2,6 +2,11 @@ use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Response, CosmosMsg, Coin, Uint64, Env, IbcTimeout, IbcMsg, DepsMut, Uint128, to_binary, Binary};
 use crate::{error::ContractError, msg::TransferIBCRewardsMsg, state::CHANNELS};
 
+#[cw_serde]
+pub enum Ics20Ack {
+    Result(Binary),
+    Error(String),
+}
 
 #[cw_serde]
 pub struct Ics20Packet {
@@ -29,11 +34,7 @@ impl Ics20Packet {
     }
 }
 
-#[cw_serde]
-pub enum Ics20Ack {
-    Result(Binary),
-    Error(String),
-}
+
 
 
 pub fn ibc_transfer_incoming(

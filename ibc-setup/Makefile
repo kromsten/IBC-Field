@@ -1,8 +1,7 @@
-APP_DIR ?= ../..
 COMPOSE ?= docker-compose
 
 build-gaia:
-		@docker buildx build --load --build-context app=$(APP_DIR)/gaia --build-context setup=$(APP_DIR)/neutron/network -t gaia-node -f dockerbuilds/Dockerfile.gaia --build-arg BINARY=gaiad .
+		@docker buildx build --load --build-context --build-context -t gaia-node -f dockerbuilds/Dockerfile.gaia --build-arg BINARY=gaiad .
 
 build-secret:
 		@$(COMPOSE) build localsecret
