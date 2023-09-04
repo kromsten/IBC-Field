@@ -11,11 +11,10 @@ use cosmwasm_std::{
 };
 
 use crate::{
-    msg::{ExecuteMsg, InstantiateMsg, QueryMsg, IBCLifecycleComplete}, 
+    msg::{ExecuteMsg, InstantiateMsg, QueryMsg, IBCLifecycleComplete, SudoMsg}, 
     random::{try_saving_random_number, get_saved_random_number}, error::ContractError,
     ibc::{ibc_transfer_incoming, ibc_lifecycle_complete, ibc_timeout}
 };
-
 
 
 #[entry_point]
@@ -65,5 +64,23 @@ pub fn execute(deps: DepsMut, env: Env, _info: MessageInfo, msg: ExecuteMsg) -> 
 pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::GetMyRandomNumber { permit } => to_binary(&get_saved_random_number(deps, env, permit)?),
+    }
+}
+
+
+
+#[entry_point]
+pub fn sudo(_deps: DepsMut, _env: Env, msg: SudoMsg) -> StdResult<Response> {
+    match msg {
+        SudoMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCAck {
+            channel: _,
+            sequence: _,
+            ack: _,
+            success: _,
+        }) => todo!(),
+        SudoMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCTimeout {
+            channel: _,
+            sequence: _,
+        }) => todo!(),
     }
 }

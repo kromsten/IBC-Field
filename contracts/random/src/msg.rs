@@ -45,6 +45,21 @@ pub enum IBCLifecycleComplete {
     },
 }
 
+
+#[cw_serde]
+pub enum QueryMsg {
+    GetMyRandomNumber {
+        permit: Permit
+    }
+}
+
+#[cw_serde]
+pub enum SudoMsg {
+    #[serde(rename = "ibc_lifecycle_complete")]
+    IBCLifecycleComplete(IBCLifecycleComplete),
+}
+
+
 #[cw_serde]
 pub struct TransferIBCRewardsMsg {
     pub channel: String,
@@ -54,12 +69,6 @@ pub struct TransferIBCRewardsMsg {
 
 
 #[cw_serde]
-pub enum QueryMsg {
-    GetMyRandomNumber {
-        permit: Permit
-    }
-}
-
-
-#[cw_serde]
 pub struct OpenCellResponse {}
+
+
