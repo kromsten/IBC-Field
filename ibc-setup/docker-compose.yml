@@ -16,7 +16,7 @@ services:
       - akashathon
 
   gaia-node:
-    image: gaia-node:latest
+    image: ghcr.io/strangelove-ventures/heighliner/gaia:latest
     container_name: gaia-node
     volumes:
       - data:/opt/gaia/data
