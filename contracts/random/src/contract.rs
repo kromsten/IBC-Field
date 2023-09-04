@@ -11,9 +11,11 @@ use cosmwasm_std::{
 };
 
 use crate::{
-    msg::{ExecuteMsg, InstantiateMsg, QueryMsg}, 
-    random::{try_saving_random_number, get_saved_random_number}, error::ContractError
+    msg::{ExecuteMsg, InstantiateMsg, QueryMsg, IBCLifecycleComplete}, 
+    random::{try_saving_random_number, get_saved_random_number}, error::ContractError,
+    ibc::{ibc_transfer, ibc_lifecycle_complete}
 };
+
 
 
 #[entry_point]
@@ -33,7 +35,27 @@ pub fn instantiate(
 #[entry_point]
 pub fn execute(deps: DepsMut, env: Env, _info: MessageInfo, msg: ExecuteMsg) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::UpdateMyRandomNumber { permit } => try_saving_random_number(deps, env, permit)
+        ExecuteMsg::UpdateMyRandomNumber { 
+            permit 
+        } => try_saving_random_number(deps, env, permit).into_iter(),
+        
+        ExecuteMsg::IBCTransfer {
+            channel_id,
+            to_address,
+            amount,
+            timeout_sec_from_now,
+        } => ibc_transfer(env, channel_id, to_address, amount, timeout_sec_from_now),
+        ExecuteMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCAck {
+            channel,
+            sequence,
+            ack,
+            success,
+        }) => ibc_lifecycle_complete(channel, sequence, ack, success),
+
+        ExecuteMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCTimeout { 
+            channel, 
+            sequence 
+        }) => ibc_timeout(channel, sequence)
     }
 }
 
