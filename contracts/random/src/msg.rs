@@ -1,6 +1,6 @@
 use cosmwasm_schema::cw_serde;
-use cosmwasm_std::Uint64;
-use secret_toolkit::permit::{Permit, Coin};
+use cosmwasm_std::{Uint64, Coin};
+use secret_toolkit::permit::Permit;
 
 #[cw_serde]
 pub struct InstantiateMsg {}
