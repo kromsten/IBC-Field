@@ -1,0 +1,1 @@
+export const MNEMONIC = import.meta.env.MNEMONIC;
