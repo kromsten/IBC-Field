@@ -8,6 +8,10 @@ then
   rm -rf /opt/secret/.sgx_secrets/*
 
   chain_id=${CHAINID:-secretdev-1}
+
+  echo "Env variable CHAINID is equal to $CHAINID"
+  echo "Initializing node with chain-id: $chain_id"
+
   LOG_LEVEL=${LOG_LEVEL:-INFO}
 
   mkdir -p ./.sgx_secrets

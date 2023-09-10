@@ -90,14 +90,13 @@ host = '127.0.0.1'
 port = 3001
 
 [[chains]]
-id = 'secretdev-1'
-
+id = 'test-1'
 rpc_addr = 'http://localsecret:26657'
 grpc_addr = 'http://localsecret:9090'
 websocket_addr = 'ws://localsecret:26657/websocket'
 rpc_timeout = '20s'
 account_prefix = 'secret'
-key_name = 'secret-relayer'
+key_name = 'testkey_1'
 store_prefix = 'ibc'
 max_msg_num = 30
 max_tx_size = 2097152
@@ -111,24 +110,23 @@ trusting_period = '14days'
 trust_threshold = { numerator = '1', denominator = '3'}
 
 
+
 [[chains]]
 id = 'test-2'
-rpc_addr = 'http://gaia-node:26657'
-grpc_addr = 'http://gaia-node:9090'
-websocket_addr = 'ws://gaia-node:26657/websocket'
-rpc_timeout = '10s'
-account_prefix = 'cosmos'
+rpc_addr = 'http://localsecret-2:26657'
+grpc_addr = 'http://localsecret-2:9090'
+websocket_addr = 'ws://localsecret-2:26657/websocket'
+rpc_timeout = '20s'
+account_prefix = 'secret'
 key_name = 'testkey_2'
 store_prefix = 'ibc'
-default_gas = 100000
-max_gas = 3000000
-gas_price = { price = 0.0025, denom = 'uatom' }
-gas_multiplier = 1.1
 max_msg_num = 30
 max_tx_size = 2097152
+default_gas = 50000
+max_gas = 3000000
+gas_multiplier = 1.1
+gas_price = { price = 0.015, denom = 'uscrt' }
 clock_drift = '5s'
 max_block_time = '10s'
 trusting_period = '14days'
-unbonding_period = '21days'
-trust_threshold = { numerator = '1', denominator = '3' }
-address_type = { derivation = 'cosmos' }
+trust_threshold = { numerator = '1', denominator = '3'}

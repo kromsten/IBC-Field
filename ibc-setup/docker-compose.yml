@@ -6,39 +6,45 @@ services:
       context: ./dockerbuilds
       dockerfile: Dockerfile.secret
     image: localsecret
-    container_name: ls-patched
+    container_name: ls-1
+    environment:
+      - CHAINID=test-1
     ports:
       - 1317:1317
       - 26657:26657
       - 26656:26656
       - 8090:9090
+      - 5000:5000
     networks:
       - akashathon
 
-  gaia-node:
-    image: ghcr.io/strangelove-ventures/heighliner/gaia:latest
-    container_name: gaia-node
-    volumes:
-      - data:/opt/gaia/data
-    ports:
-      - 1316:1317
-      - 16657:26657
-      - 16656:26656
-      - 9090:9090
+  localsecret-2:
+    build:
+      context: ./dockerbuilds
+      dockerfile: Dockerfile.secret
+    image: localsecret
+    container_name: ls-2
     environment:
-      - BINARY=gaiad
       - CHAINID=test-2
-      - STAKEDENOM=uatom
-      - ALLOW_ICA_EXEC=yes
-      - RUN_BACKGROUND=0
+    ports:
+      - 2317:1317
+      - 36657:26657
+      - 36656:26656
+      - 9090:9090
+      - 5001:5000
     networks:
       - akashathon
+  
 
   hermes:
-    image: hermes:1.3.0-a285c01
+    build:
+      context: ./dockerbuilds
+      dockerfile: Dockerfile.hermes
+    image: hermes
+    container_name: hermes
     depends_on:
       - "localsecret"
-      - "gaia-node"
+      - "localsecret-2"
     networks:
       - akashathon
 
