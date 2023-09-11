@@ -1,7 +1,7 @@
 [package]
 name = "secret_contract_example"
 version = "0.1.0"
-authors = ["SecretTemplateExample"]
+authors = [" <kromsten kromsten@pm.me> "]
 edition = "2021"
 
 [lib]
@@ -25,21 +25,24 @@ default = []
 backtraces = ["cosmwasm-std/backtraces"]
 
 [dependencies]
-cosmwasm-std = { package = "secret-cosmwasm-std", version = "1.1.10", features = ["random"]}
-cosmwasm-storage = { package = "secret-cosmwasm-storage", version = "1.1.10" }
+cosmwasm-std = { git = "https://github.com/scrtlabs/cosmwasm", default-features = false, package = "secret-cosmwasm-std", branch = "ibc-msg-transfer-memo", features = [
+  "ibc3",
+  "random",
+] }
+secret-toolkit = { version = "0.7.0",features = ["permit"] }
+
 schemars = { version = "0.8.11" }
 serde = { version = "1.0" }
 thiserror = { version = "1.0" }
 cosmwasm-schema = "1.0.0"
-secret-toolkit = { version= "0.9.0", features = ["permit"] }
+semver = "1.0.18"
 
-# Uncomment these for some common extra tools
-# secret-toolkit = { git = "https://github.com/scrtlabs/secret-toolkit", tag = "v0.8.0" }
-# cw-storage-plus = { version = "1.0.1", default-features = false }
+# secret-toolkit = { version= "0.9.0", features = ["permit"] }
 
-# [patch.crates-io]
-# uncomment this if you use cw-storage-plus
-# cosmwasm-std = { git = "https://github.com/scrtlabs/cosmwasm", tag = "v1.1.9-secret" }
+
+[patch.crates-io]
+cosmwasm-std = { git = "https://github.com/scrtlabs/cosmwasm", branch = "ibc-msg-transfer-memo", package = "secret-cosmwasm-std" }
+cosmwasm-storage = { git = "https://github.com/scrtlabs/cosmwasm", branch = "ibc-msg-transfer-memo", package = "secret-cosmwasm-storage" }
 
 [[bin]]
 name = "schema"

@@ -1,7 +1,21 @@
-use cosmwasm_std::{entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, StdError};
-use secret_toolkit::permit::Permit;
+use cosmwasm_std::{
+    entry_point, 
+    to_binary, 
+    Binary, 
+    Deps, 
+    DepsMut, 
+    Env, 
+    MessageInfo, 
+    Response, 
+    StdResult
+};
 
-use crate::{msg::{ExecuteMsg, InstantiateMsg, QueryMsg}, state::{RANDOM_NUMBERS, PERMITS_KEY}};
+use crate::{
+    msg::{ExecuteMsg, InstantiateMsg, QueryMsg, IBCLifecycleComplete, SudoMsg}, 
+    random::{try_saving_random_number, get_saved_random_number}, error::ContractError,
+    ibc::{ibc_transfer_incoming, ibc_lifecycle_complete, ibc_timeout}
+};
+
 
 #[entry_point]
 pub fn instantiate(
@@ -18,9 +32,30 @@ pub fn instantiate(
 }
 
 #[entry_point]
-pub fn execute(deps: DepsMut, env: Env, _info: MessageInfo, msg: ExecuteMsg) -> StdResult<Response> {
+pub fn execute(deps: DepsMut, env: Env, _info: MessageInfo, msg: ExecuteMsg) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::UpdateMyRandomNumber { permit } => try_saving_random_number(deps, env, permit)
+        ExecuteMsg::UpdateMyRandomNumber { 
+            permit 
+        } => try_saving_random_number(deps, env, permit),
+        
+        ExecuteMsg::IBCTransfer {
+            channel_id,
+            to_address,
+            amount,
+            timeout_sec_from_now,
+        } => ibc_transfer_incoming(env, channel_id, to_address, amount, timeout_sec_from_now),
+
+        ExecuteMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCAck {
+            channel,
+            sequence,
+            ack,
+            success,
+        }) => ibc_lifecycle_complete(channel, sequence, ack, success),
+
+        ExecuteMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCTimeout { 
+            channel, 
+            sequence 
+        }) => ibc_timeout(channel, sequence)
     }
 }
 
@@ -32,29 +67,20 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
     }
 }
 
-fn try_saving_random_number(deps: DepsMut, env: Env, permit: Permit) -> StdResult<Response> {
-    let address = address_from_permit(deps.as_ref(), &env, &permit)?;
-    let random = env.block.random.unwrap().0[0] % u8::MAX;
-    deps.api.debug(format!("Random number is {}", random).as_str());
-    RANDOM_NUMBERS.insert(deps.storage, &address, &random)?;
-    Ok(Response::default())
-}
 
-fn get_saved_random_number(deps: Deps, env: Env, permit: Permit) -> StdResult<u8> {
-    let address = address_from_permit(deps, &env, &permit)?;
-    let number = RANDOM_NUMBERS.get(deps.storage, &address);
-    if number.is_none() {
-        return Err(StdError::generic_err("No random number was saved for this address"));
+
+#[entry_point]
+pub fn sudo(_deps: DepsMut, _env: Env, msg: SudoMsg) -> StdResult<Response> {
+    match msg {
+        SudoMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCAck {
+            channel: _,
+            sequence: _,
+            ack: _,
+            success: _,
+        }) => todo!(),
+        SudoMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCTimeout {
+            channel: _,
+            sequence: _,
+        }) => todo!(),
     }
-    Ok(number.unwrap())
-}
-
-fn address_from_permit(deps: Deps, env: &Env, permit: &Permit) -> StdResult<String> {
-    secret_toolkit::permit::validate(
-        deps,
-        PERMITS_KEY,
-        &permit,
-        env.contract.address.to_string(),
-        None,
-    )
 }

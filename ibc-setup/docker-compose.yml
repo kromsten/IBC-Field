@@ -1,0 +1,59 @@
+version: '3.8'
+services:
+
+  localsecret:
+    build:
+      context: ./dockerbuilds
+      dockerfile: Dockerfile.secret
+    image: localsecret
+    container_name: ls-1
+    environment:
+      - CHAINID=test-1
+    ports:
+      - 1317:1317
+      - 26657:26657
+      - 26656:26656
+      - 8090:9090
+      - 5000:5000
+    networks:
+      - akashathon
+
+  localsecret-2:
+    build:
+      context: ./dockerbuilds
+      dockerfile: Dockerfile.secret
+    image: localsecret
+    container_name: ls-2
+    environment:
+      - CHAINID=test-2
+    ports:
+      - 2317:1317
+      - 36657:26657
+      - 36656:26656
+      - 9090:9090
+      - 5001:5000
+    networks:
+      - akashathon
+  
+
+  hermes:
+    build:
+      context: ./dockerbuilds
+      dockerfile: Dockerfile.hermes
+    image: hermes
+    container_name: hermes
+    depends_on:
+      - "localsecret"
+      - "localsecret-2"
+    networks:
+      - akashathon
+
+volumes:
+  data:
+    name: akashathon-data
+    external: false
+
+networks:
+  akashathon:
+    name: akashathon
+    external: false
