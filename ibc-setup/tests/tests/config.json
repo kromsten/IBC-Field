@@ -1,0 +1,11 @@
+{
+    "contract_info": {
+        "code_id": 1,
+        "code_hash": "d12a4de3278290ed4f81595f2054b580cfd64745fba79984b1571ae058366908",
+        "contract_address": "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q"
+    },
+    "ibc_info": {
+        "secret_channel": "channel-0",
+        "consumer_channel": "channel-0"
+    }
+}
