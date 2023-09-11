@@ -1,43 +1,30 @@
-<script>
-	import Header from './Header.svelte';
-	import Footer from './Footer.svelte';
-	import './styles.css';
-	import { onMount } from 'svelte';
-	import { initDapp } from '$lib/ts';
-  	import { detectedWallets } from '$lib/ts/connection';
+<script lang="ts">
+	import '../app.postcss';
+	import { AppBar, AppShell } from '@skeletonlabs/skeleton';
+	import Nav from '$lib/components/Nav.svelte';
 
-	onMount(() => {
-		initDapp().then(() => {
-			console.log('Dapp initialized');
-			console.log($detectedWallets);
-		});
-	})
+	// Floating UI for Popups
+	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
+	import { storePopup } from '@skeletonlabs/skeleton';
+
+
+
+	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 
-<div class="app">
-	<Header />
-
-	<main>
-		<slot />
-	</main>
-
-	<Footer />
-</div>
-
-<style>
-	.app {
-		display: flex;
-		flex-direction: column;
-		min-height: 100vh;
-	}
-
-	main {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-		max-width: 64rem;
-		margin: 0 auto;
-		box-sizing: border-box;
-	}
-</style>
+<!-- App Shell -->
+<AppShell>
+	<svelte:fragment slot="header">
+		<AppBar padding="p-0" background="p-0" gridColumns="0" gap="gx-3">
+			<svelte:fragment slot="lead">
+				<strong class="text-xl uppercase"></strong>
+			</svelte:fragment>
+			<svelte:fragment slot="default">
+				<Nav />
+			</svelte:fragment>
+		</AppBar>
+	</svelte:fragment>
+	<!-- Page Route Content -->
+	<slot />
+</AppShell>
+	
