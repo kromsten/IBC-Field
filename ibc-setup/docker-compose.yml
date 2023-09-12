@@ -8,7 +8,9 @@ services:
     image: localsecret
     container_name: ls-1
     environment:
-      - CHAINID=test-1
+        CHAINID: "test-1"
+        FAST_BLOCKS: "true"
+        LOG_LEVEL: "TRACE"
     ports:
       - 1317:1317
       - 26657:26657
@@ -25,7 +27,9 @@ services:
     image: localsecret
     container_name: ls-2
     environment:
-      - CHAINID=test-2
+        CHAINID: test-2
+        FAST_BLOCKS: "true"
+        LOG_LEVEL: "TRACE"
     ports:
       - 2317:1317
       - 36657:26657
@@ -34,7 +38,6 @@ services:
       - 5001:5000
     networks:
       - akashathon
-  
 
   hermes:
     build:

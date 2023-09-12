@@ -1,7 +1,7 @@
 
 import { readFileSync } from "fs"
 import { sha256 } from "@noble/hashes/sha256";
-import { toHex, type SecretNetworkClient, MsgStoreCodeParams, TxResultCode, MsgInstantiateContractParams, MsgInstantiateContractResponse } from "secretjs"
+import { toHex, type SecretNetworkClient, MsgStoreCodeParams, TxResultCode, MsgInstantiateContractParams, MsgInstantiateContractResponse, MsgExecuteContractResponse } from "secretjs"
 import { loadConfig, saveConfig } from "./config";
 import { InitMsg } from "./types";
 
@@ -11,6 +11,8 @@ export const uploadContract = async (
     wasmPath: string = "tests/contract_code/field.wasm"
 ) => {
 
+    console.log("Uploading contract...");
+    
     const wasm_byte_code = readFileSync(wasmPath) as Uint8Array;
     const codeHash = toHex(sha256(wasm_byte_code)); 
 
@@ -35,7 +37,6 @@ export const uploadContract = async (
         code_id: codeId,
         code_hash: codeHash
     }
-        
     saveConfig(config);
 }
 

@@ -9,6 +9,7 @@ export default defineConfig({
   test: {
     clearMocks: true,
     globals: true,
+    testTimeout: 185000,
     setupFiles: ['dotenv/config']
   },
   resolve: {
