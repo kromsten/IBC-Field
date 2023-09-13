@@ -1,10 +1,9 @@
-use std::vec;
-
-use cosmwasm_std::{Env, DepsMut, MessageInfo, Binary, coins, Coin, Attribute, to_binary, from_binary, Deps};
 #[cfg(test)]
+use std::vec;
+use cosmwasm_std::{Env, DepsMut, MessageInfo, Binary, coins, Coin, Attribute, to_binary, from_binary, Deps};
 use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
 use secret_toolkit::permit::{Permit, TokenPermissions, PermitParams, PermitSignature, PubKey};
-use crate::{msg::{InstantiateMsg, ExecuteMsg, QueryMsg}, contract::{instantiate, execute, ONE_DAY, query}, state::{ChainAmount, Powerup}, error::ContractError};
+use crate::{msg::{InstantiateMsg, ExecuteMsg, QueryMsg}, contract::{instantiate, execute, ONE_DAY, query}, state::{NetworkConfig, Powerup}, error::ContractError};
 
 
 pub fn init(deps: DepsMut, env: &Env, info: &MessageInfo) {
@@ -13,29 +12,33 @@ pub fn init(deps: DepsMut, env: &Env, info: &MessageInfo) {
         user_cooldown: None,
         win_threshold: None,
         field_size: None,
-        chain_amounts: vec![
+        network_configs: vec![
             (
                 String::from("uscrt"), 
-                ChainAmount { 
+                NetworkConfig { 
                     to_win: 1000000u128, 
                     to_open: 50000u128,
                     power_ups: vec![
                         (Powerup::Shovel, 25000u128),
                         (Powerup::Fertilizer, 60000u128),
                         (Powerup::Clover, 100000u128),
-                    ]
+                    ],
+                    channel_id: None,
+                    hrp: None
                 }
             ),
             (
                 String::from("uakt"), 
-                ChainAmount { 
+                NetworkConfig { 
                     to_win: 2000000u128, 
                     to_open: 20000u128,
                     power_ups: vec![
                         (Powerup::Shovel, 20000u128),
                         (Powerup::Fertilizer, 30000u128),
                         (Powerup::Clover, 50000u128),
-                    ]
+                    ],
+                    channel_id: None,
+                    hrp: None
                 }
             ),
         ]
@@ -69,6 +72,8 @@ pub fn get_my_powerups(deps: Deps, env: &Env) -> Vec<(Powerup, u8)> {
     let myh: Vec::<(Powerup, u8)> = from_binary(&my.unwrap()).unwrap();
     myh
 }
+
+
 
 #[test]
 fn test_try_opening_cell() {
@@ -502,7 +507,7 @@ fn test_cooldown_powerups() {
     assert!(execute(deps.as_mut(), env.clone(), buy_info, buy_powerups.clone()).is_ok());
 
 
-    
+
     let auto_pay_second_with_both = ExecuteMsg::OpenCell { 
         cell_id: 2, 
         permit: get_permit(), 

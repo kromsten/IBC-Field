@@ -7,4 +7,7 @@ pub mod field;
 pub mod rewards;
 pub mod error;
 pub mod ibc;
+pub mod admin;
+pub mod powerups;
+pub mod networks;
 pub mod tests;

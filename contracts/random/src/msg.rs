@@ -1,7 +1,7 @@
 use cosmwasm_schema::cw_serde;
-use cosmwasm_std::{Uint64, Coin};
+use cosmwasm_std::Coin;
 use secret_toolkit::permit::Permit;
-use crate::state::{ChainAmount, Powerup};
+use crate::state::{NetworkConfig, Powerup, AppStatus};
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -9,7 +9,7 @@ pub struct InstantiateMsg {
     pub cell_cooldown: Option<u64>,
     pub user_cooldown: Option<u64>,
     pub win_threshold: Option<u16>,
-    pub chain_amounts: Vec<(String, ChainAmount)>
+    pub network_configs: Vec<(String, NetworkConfig)>
 }
 
 #[cw_serde]
@@ -30,15 +30,15 @@ pub enum ExecuteMsg {
         permit: Permit,
     },
 
-    TempTest {},
-
-    #[serde(rename = "ibc_transfer")]
-    IBCTransfer {
-        channel_id: String,
-        to_address: String,
-        amount: Coin,
-        timeout_sec_from_now: Uint64,
+    SetAppStatus {
+        status: AppStatus,
     },
+
+    ForwardsFunds {
+        to_address: String,
+        amount: Vec<Coin>,
+    },
+
     #[serde(rename = "ibc_lifecycle_complete")]
     IBCLifecycleComplete(IBCLifecycleComplete),
 }
@@ -74,7 +74,13 @@ pub enum QueryMsg {
     },
     GetMyPowerups {
         permit: Permit
-    }
+    },
+
+    AllNetworkConfigs {},
+    
+    NetworkConfig {
+        denom: String
+    },
 }
 
 #[cw_serde]

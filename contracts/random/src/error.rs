@@ -22,6 +22,9 @@ pub enum ContractError {
     #[error("Payments info for this token is not configurex")]
     NoAmountInfo{},
 
+    #[error("Channel Id must be set for ibc denoms")]
+    MissingChannelId{},
+
     #[error("This IBC channel is not supported")]
     NotSupportedChannel{},
 

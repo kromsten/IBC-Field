@@ -30,14 +30,28 @@ impl fmt::Display for Powerup {
     }
 }
 
+
+#[cw_serde]
+pub enum AppStatus {
+    Active,
+    Paused,
+    Finished
+}
+
+
+
 #[cw_serde]
 pub struct  CellState {
     pub random: u8,
     pub open_at: u64
 }
 
+
 #[cw_serde]
-pub struct  ChainAmount {
+pub struct  NetworkConfig {
+    pub channel_id: Option<String>,
+    pub hrp: Option<String>,
+    
     pub to_win: u128,
     pub to_open: u128,
     pub power_ups: Vec<(Powerup, u128)>
@@ -47,15 +61,17 @@ pub struct  ChainAmount {
 
 #[repr(u8)]
 enum Keys {
-    Permits = b's',
+    Permits = b'p',
     RandomNumbers = b'r',
     Config = b'g',
-    Powerups = b'p',
+    Powerups = b'u',
     UserCooldowns = b'd',
     Cells = b'c',
     Channels = b'h',
     FieldSize = b'f',
-    ChainAmounts = b'a'
+    ChainAmounts = b'a',
+    Admin = b'm',
+    AppStatus = b's',
 }
 
 impl Keys {
@@ -82,25 +98,22 @@ pub static RANDOM_NUMBERS: Keymap<String, u8, Bincode2, WithoutIter> =
             KeymapBuilder::new(Keys::RandomNumbers.as_bytes()).without_iter().build();
 
 
-pub static CHANNELS: Keymap<String, String, Json, WithoutIter> =
+pub static TOKEN_TO_CHANNEL: Keymap<String, String, Json, WithoutIter> =
             KeymapBuilder::new(Keys::Channels.as_bytes()).without_iter().build();
 
-
+pub static ADMIN: Item<String> = Item::new(Keys::Admin.as_bytes());
+pub static APP_STATUS: Item<AppStatus> = Item::new(Keys::AppStatus.as_bytes());
 pub static CONFIG: Item<Config, Bincode2> = Item::new(Keys::Config.as_bytes());
-
 pub static FIELD_SIZE: Item<u8> = Item::new(Keys::FieldSize.as_bytes());
 
 pub static USER_POWERUPS: Keymap<Powerup, u8, Json, WithIter> =
             KeymapBuilder::new(Keys::Powerups.as_bytes()).build();
 
-
 pub static USER_COOLDOWNS: Keymap<String, u64, Bincode2, WithoutIter> =
     KeymapBuilder::new(Keys::UserCooldowns.as_bytes()).without_iter().build();
 
-
-pub static CHAIN_AMOUNTS: Keymap<String, ChainAmount, Bincode2, WithoutIter> =
-    KeymapBuilder::new(Keys::ChainAmounts.as_bytes()).without_iter().build();
-
+pub static NETWORK_CONFIGS: Keymap<String, NetworkConfig, Json> =
+    KeymapBuilder::new(Keys::ChainAmounts.as_bytes()).build();
 
 pub static CELLS: Keymap<u8, CellState, Bincode2, WithoutIter> =
             KeymapBuilder::new(Keys::Cells.as_bytes()).without_iter().build();

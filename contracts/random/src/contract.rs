@@ -21,9 +21,9 @@ use rand_chacha::{
 use crate::{
     msg::{ExecuteMsg, QueryMsg, IBCLifecycleComplete, SudoMsg, InstantiateMsg}, 
     random::{try_saving_random_number, get_saved_random_number, randomness_seed}, error::ContractError,
-    ibc::{ibc_transfer_incoming, ibc_lifecycle_complete, ibc_timeout}, 
-    state::{CellState, CELLS, Config, CONFIG, FIELD_SIZE, CHAIN_AMOUNTS}, 
-    field::{valid_field_size, try_opening_cell, try_buying_powerups, get_user_powerups}, utils::{address_from_permit, is_powerup_list_unique}
+    ibc::{ibc_lifecycle_complete, ibc_timeout}, 
+    state::{CellState, CELLS, Config, CONFIG, FIELD_SIZE, NETWORK_CONFIGS}, 
+    field::{valid_field_size, try_opening_cell}, utils::{address_from_permit, is_powerup_list_unique}, admin::{forwards_funds, set_app_status}, powerups::{try_buying_powerups, get_user_powerups}, networks::{get_all_network_configs, get_network_config}
 };
 
 
@@ -50,14 +50,19 @@ pub fn instantiate(
     FIELD_SIZE.save(deps.storage, &field_size)?;
 
     // win amounts
-    for (denom, amounts) in msg.chain_amounts.iter() {
-        let powerup_list = amounts.power_ups
+    for (denom, configs) in msg.network_configs.iter() {
+        let powerup_list = configs.power_ups
                 .iter().map(|(powerup, _)| powerup.clone()).collect::<Vec<_>>();
 
-        if amounts.power_ups.len() != 3 || !is_powerup_list_unique(&powerup_list) {
+        if configs.power_ups.len() != 3 || !is_powerup_list_unique(&powerup_list) {
             return Err(ContractError::InvalidPowerupAmounts {});
         }
-        CHAIN_AMOUNTS.insert(deps.storage, &denom, &amounts).unwrap();
+
+        if denom.starts_with("ibc/") && configs.channel_id.is_none() {
+            return Err(ContractError::MissingChannelId {});
+        }
+
+        NETWORK_CONFIGS.insert(deps.storage, &denom, &configs).unwrap();
     }
 
     // config
@@ -119,9 +124,7 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
             permit,
             powerups,
         } => {
-
             let sender = address_from_permit(deps.as_ref(), &env, &permit)?;
-                
             try_buying_powerups(
                 deps, 
                 sender,
@@ -130,18 +133,14 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
             )
         },
 
-        ExecuteMsg::TempTest { } => {
-            deps.api.debug("Temp Test");
-            deps.api.debug(format!("Message from {}", info.sender).as_str());
-            Ok(Response::default())
-        },
+        ExecuteMsg::SetAppStatus { status } => set_app_status(deps, info.sender, status),
+
         
-        ExecuteMsg::IBCTransfer {
-            channel_id,
+        ExecuteMsg::ForwardsFunds {
             to_address,
             amount,
-            timeout_sec_from_now,
-        } => ibc_transfer_incoming(env, channel_id, to_address, amount, timeout_sec_from_now),
+        } => forwards_funds(deps.as_ref(), info.sender, to_address, amount),
+
 
         ExecuteMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCAck {
             channel,
@@ -164,23 +163,25 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::GetMyRandomNumber { permit } => to_binary(&get_saved_random_number(deps, env, permit)?),
         QueryMsg::GetMyPowerups { permit } => to_binary(&get_user_powerups(deps, env, permit)?),
-
+        QueryMsg::NetworkConfig { denom } => to_binary(&get_network_config(deps, denom)),
+        QueryMsg::AllNetworkConfigs {} => to_binary(&get_all_network_configs(deps)?)
     }
 }
 
 
 #[entry_point]
-pub fn sudo(_deps: DepsMut, _env: Env, msg: SudoMsg) -> StdResult<Response> {
+pub fn sudo(_deps: DepsMut, _env: Env, msg: SudoMsg) -> Result<Response, ContractError> {
     match msg {
         SudoMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCAck {
-            channel: _,
-            sequence: _,
-            ack: _,
-            success: _,
-        }) => todo!(),
+            channel,
+            sequence,
+            ack,
+            success,
+        }) => ibc_lifecycle_complete(channel, sequence, ack, success),
+
         SudoMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCTimeout {
-            channel: _,
-            sequence: _,
-        }) => todo!(),
+            channel,
+            sequence,
+        }) => ibc_timeout(channel, sequence),
     }
 }

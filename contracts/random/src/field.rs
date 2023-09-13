@@ -1,9 +1,8 @@
-use cosmwasm_std::{Response, Env, DepsMut, CosmosMsg, Coin, Deps, Event, Attribute, StdResult};
+use cosmwasm_std::{Response, Env, DepsMut, CosmosMsg, Coin, Deps, Event, Attribute};
 use rand_chacha::{ChaChaRng, rand_core::{SeedableRng, CryptoRngCore}};
-use secret_toolkit::permit::Permit;
 use crate::{
-    state::{CELLS, Powerup, CONFIG, USER_COOLDOWNS, CHAIN_AMOUNTS, FIELD_SIZE, USER_POWERUPS}, 
-    error::ContractError, utils::{is_powerup_list_unique, is_powerup_included, address_from_permit}, 
+    state::{CELLS, Powerup, CONFIG, USER_COOLDOWNS, NETWORK_CONFIGS, FIELD_SIZE, USER_POWERUPS}, 
+    error::ContractError, utils::{is_powerup_list_unique, is_powerup_included}, 
     random::randomness_seed, rewards::reward
 };
 
@@ -17,60 +16,6 @@ pub fn valid_cell_id(deps: Deps, cell_id: u8) -> bool {
     let max = FIELD_SIZE.load(deps.storage).unwrap();
     cell_id > 0 && cell_id <= max
 }
-
-
-pub fn get_user_powerups(deps: Deps, env: Env, permit: Permit) -> StdResult<Vec<(Powerup, u8)>> { 
-    let address = address_from_permit(deps, &env, &permit)?;
-    let powerups: Vec<(Powerup, u8)> = USER_POWERUPS.add_suffix(address.as_bytes())
-        .iter(deps.storage)?
-        .map(|res| res.unwrap())
-        .collect();
-    Ok(powerups)
-}
-
-
-pub fn try_buying_powerups(
-    deps: DepsMut,
-    sender: String,
-    powerups: Vec<Powerup>,
-    mut funds: Vec<Coin>
-) -> Result<Response, ContractError> {
-    if powerups.len() == 0 {
-        return Err(ContractError::EmptyPowerupList{});
-    }
-    if funds.len() == 0 {
-        return Err(ContractError::NotPaidAtAll {});
-    };
-    let coin = funds.pop().unwrap();
-    if funds.len() > 0 {
-        return Err(ContractError::TooManyDenoms{ });
-    };
-    
-    let amounts = CHAIN_AMOUNTS.get(deps.storage, &coin.denom).unwrap();
-    
-    let mut to_pay = 0;
-
-    let user_owned_powerups = USER_POWERUPS.add_suffix(sender.as_bytes());
-
-    if powerups.len() > 0 {
-        for powerup in powerups.iter() {
-            let count = user_owned_powerups.get(deps.storage, &powerup).unwrap_or(0);
-            let price = amounts.power_ups.iter().find(|(pup, _)| pup == powerup).unwrap().1;
-            
-            to_pay += price;
-
-            user_owned_powerups.insert(deps.storage, &powerup, &(count + 1))?;
-        }
-    }
-
-    if coin.amount.u128() < to_pay {
-        return Err(ContractError::NotPaidEnough(to_pay, coin.amount.u128()));
-    }
-
-
-    Ok(Response::default())
-}
-
 
 
 pub fn try_opening_cell(
@@ -103,7 +48,7 @@ pub fn try_opening_cell(
     }
     let autopay = powerup_autopay.unwrap_or(false);
 
-    let amounts = CHAIN_AMOUNTS.get(deps.storage, &coin.denom);
+    let amounts = NETWORK_CONFIGS.get(deps.storage, &coin.denom);
     if amounts.is_none() {
         return Err(ContractError::NoAmountInfo{});
     }
@@ -115,13 +60,8 @@ pub fn try_opening_cell(
     if powerups.len() > 0 {
         let user_owned_powerups = USER_POWERUPS.add_suffix(sender.as_bytes());
         
-        println!("powerups: {:?}", powerups);
-        println!("autopay: {:?}", autopay);
-        
-
         for powerup in powerups.iter() {
             let count = user_owned_powerups.get(deps.storage, &powerup).unwrap_or(0);
-            println!("count of {}: {}", powerup, count);
             if count == 0 {
                 if autopay {
                     let price = amounts.power_ups.iter().find(|(pup, _)| pup == powerup).unwrap().1;
@@ -175,6 +115,7 @@ pub fn try_opening_cell(
     let user_cooldown_ends_at = env.block.time.seconds() + config.user_cooldown;
     let to_be_rewarded = cell.random as u16 + user_random as u16 > config.win_threshold;
     
+    let cell_old_random = cell.random;
 
     cell.open_at = env.block.time.seconds() + config.cell_cooldown;
     cell.random = block_random[0];
@@ -205,12 +146,31 @@ pub fn try_opening_cell(
             key: String::from("can_open_next_at"),
             value: user_cooldown_ends_at.to_string(),
             encrypted: true
+        },
+
+        Attribute {
+            key: String::from("cell_score"),
+            value: cell_old_random.to_string(),
+            encrypted: true
+        },
+
+        Attribute {
+            key: String::from("user_score"),
+            value: cell_old_random.to_string(),
+            encrypted: true
         }
     ];
 
 
     if to_be_rewarded {
-        reward(deps.as_ref(), sender.clone(), amounts.to_win, &mut msgs, &mut attributes)?;
+        reward(
+            deps.as_ref(), 
+            env, 
+            sender.clone(), 
+            coin.denom,
+            &mut msgs, 
+            &mut attributes
+        )?;
     }
 
 
