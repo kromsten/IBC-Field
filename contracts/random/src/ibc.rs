@@ -36,7 +36,6 @@ impl Ics20Packet {
 
 
 
-
 pub fn ibc_transfer_incoming(
     env: Env,
     channel_id : String,

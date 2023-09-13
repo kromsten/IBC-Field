@@ -8,10 +8,8 @@ use secret_toolkit::serialization::{Bincode2, Json};
 #[cw_serde]
 pub struct Config {
     pub win_threshold: u16,
-    pub win_amount: u128,
     pub cell_cooldown: u64,
-    pub user_cooldown: u64
-
+    pub user_cooldown: u64,
 }
 
 
@@ -29,6 +27,13 @@ pub struct  CellState {
     pub open_at: u64
 }
 
+#[cw_serde]
+pub struct  ChainAmount {
+    pub to_win: u128,
+    pub to_open: u128
+}
+
+
 
 #[repr(u8)]
 enum Keys {
@@ -38,7 +43,9 @@ enum Keys {
     Powerups = b'p',
     UserCooldowns = b'd',
     Cells = b'c',
-    Channels = b'h'
+    Channels = b'h',
+    FieldSize = b'f',
+    ChainAmounts = b'a'
 }
 
 impl Keys {
@@ -71,11 +78,18 @@ pub static CHANNELS: Keymap<String, String, Json, WithoutIter> =
 
 pub static CONFIG: Item<Config, Bincode2> = Item::new(Keys::Config.as_bytes());
 
+pub static FIELD_SIZE: Item<u8> = Item::new(Keys::FieldSize.as_bytes());
+
 pub static POWERUPS: Keymap<Addr, (Powerup, u8), Json, WithoutIter> =
             KeymapBuilder::new(Keys::Powerups.as_bytes()).without_iter().build();
 
+
 pub static USER_COOLDOWNS: Keymap<Addr, u64, Bincode2, WithoutIter> =
     KeymapBuilder::new(Keys::UserCooldowns.as_bytes()).without_iter().build();
+
+
+pub static CHAIN_AMOUNTS: Keymap<String, ChainAmount, Bincode2, WithoutIter> =
+    KeymapBuilder::new(Keys::ChainAmounts.as_bytes()).without_iter().build();
 
 
 pub static CELLS: Keymap<u8, CellState, Bincode2, WithoutIter> =

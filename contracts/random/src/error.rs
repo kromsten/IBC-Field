@@ -15,8 +15,17 @@ pub enum ContractError {
     #[error("A dublicate of an powerup was submitted")]
     NotUnique{},
 
+    #[error("Payments info for this token is not configurex")]
+    NoAmountInfo{},
+
     #[error("This IBC channel is not supported")]
     NotSupportedChannel{},
+
+    #[error("Invalid field size. Must be between 3 and 64 and even")]
+    InvalidFieldSize{},
+
+    #[error("Only one denom a time is allowed")]
+    TooManyDenoms{},
 
     #[error("Cell is on cooldown. Need to wait for {0} more seconds")]
     CellCooldown(u64),
@@ -24,7 +33,10 @@ pub enum ContractError {
     #[error("Can't dig anymore for a while. Need to wait for {0} more seconds")]
     UserCooldown(u64),
 
-    #[error("Not enough funds to reward the winner. The Reward is {0}uscrt, but the contract only has {1}uscrt ")]
+    #[error("To open the cell with the token you must send {0} units, but the you sent {1} ")]
+    NotPaidEnough(u128, u128),
+
+    #[error("Not enough funds to reward the winner. The Reward is {0}, but the contract only has {1} ")]
     NotEnoughFundsNative(u128, u128),
 
     #[error("Semver parsing error: {0}")]

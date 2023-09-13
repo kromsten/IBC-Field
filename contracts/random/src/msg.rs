@@ -1,9 +1,16 @@
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Uint64, Coin};
 use secret_toolkit::permit::Permit;
+use crate::state::ChainAmount;
 
 #[cw_serde]
-pub struct InstantiateMsg {}
+pub struct InstantiateMsg {
+    pub field_size: Option<u8>,
+    pub cell_cooldown: Option<u64>,
+    pub user_cooldown: Option<u64>,
+    pub win_threshold: Option<u16>,
+    pub chain_amounts: Vec<(String, ChainAmount)>
+}
 
 #[cw_serde]
 pub enum ExecuteMsg {
