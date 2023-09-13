@@ -50,7 +50,6 @@ pub fn try_opening_cell(
         reward(deps.as_ref(), sender.clone(), config.win_amount, &mut msgs, &mut attributes)?
     }
 
-
     cell.open_at = env.block.time.seconds() + config.cell_cooldown;
     cell.random = block_random[0];
 

@@ -1,5 +1,5 @@
 [package]
-name = "secret_contract_example"
+name = "field"
 version = "0.1.0"
 authors = [" <kromsten kromsten@pm.me> "]
 edition = "2021"

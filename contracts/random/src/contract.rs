@@ -9,6 +9,7 @@ use cosmwasm_std::{
     Response, 
     StdResult
 };
+use schemars::_serde_json::de;
 
 use crate::{
     msg::{ExecuteMsg, InstantiateMsg, QueryMsg, IBCLifecycleComplete, SudoMsg}, 
@@ -20,7 +21,7 @@ use crate::{
 #[entry_point]
 pub fn instantiate(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
     _msg: InstantiateMsg,
 ) -> StdResult<Response> {
@@ -28,15 +29,27 @@ pub fn instantiate(
     deps.api
         .debug(format!("Contract was initialized by {}", info.sender).as_str());
 
+    for _ in 0..64 {
+        let random = env.block.random.as_ref().unwrap().0[0] % u8::MAX;
+        deps.api.debug(format!("Random number is {}", random).as_str());
+    }
+
+
     Ok(Response::default())
 }
 
 #[entry_point]
-pub fn execute(deps: DepsMut, env: Env, _info: MessageInfo, msg: ExecuteMsg) -> Result<Response, ContractError> {
+pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> Result<Response, ContractError> {
     match msg {
         ExecuteMsg::UpdateMyRandomNumber { 
             permit 
         } => try_saving_random_number(deps, env, permit),
+
+        ExecuteMsg::TempTest { } => {
+            deps.api.debug("Temp Test");
+            deps.api.debug(format!("Message from {}", info.sender).as_str());
+            Ok(Response::default())
+        },
         
         ExecuteMsg::IBCTransfer {
             channel_id,

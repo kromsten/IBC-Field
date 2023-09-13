@@ -11,6 +11,8 @@ pub enum ExecuteMsg {
         permit: Permit
     },
 
+    TempTest {},
+
     #[serde(rename = "ibc_transfer")]
     IBCTransfer {
         channel_id: String,

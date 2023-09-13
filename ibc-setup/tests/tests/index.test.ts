@@ -22,8 +22,6 @@ describe('Execute remote contract', () => {
             false
         )
 
-
-
         const msg = {
             wasm: {
                 contract: contract_address!,
