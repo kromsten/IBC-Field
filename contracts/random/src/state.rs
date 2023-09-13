@@ -1,6 +1,6 @@
+use std::fmt;
 use cosmwasm_schema::cw_serde;
-
-use cosmwasm_std::Addr;
+use secret_toolkit::storage::iter_options::WithIter;
 use secret_toolkit::storage::{KeymapBuilder, Keymap, WithoutIter, Item};
 use secret_toolkit::serialization::{Bincode2, Json};
 
@@ -20,6 +20,15 @@ pub enum Powerup {
     Fertilizer
 }
 
+impl fmt::Display for Powerup {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Powerup::Clover => write!(f, "Clover"),
+            Powerup::Shovel => write!(f, "Shovel"),
+            Powerup::Fertilizer => write!(f, "Fertilizer"),
+        }
+    }
+}
 
 #[cw_serde]
 pub struct  CellState {
@@ -30,7 +39,8 @@ pub struct  CellState {
 #[cw_serde]
 pub struct  ChainAmount {
     pub to_win: u128,
-    pub to_open: u128
+    pub to_open: u128,
+    pub power_ups: Vec<(Powerup, u128)>
 }
 
 
@@ -80,11 +90,11 @@ pub static CONFIG: Item<Config, Bincode2> = Item::new(Keys::Config.as_bytes());
 
 pub static FIELD_SIZE: Item<u8> = Item::new(Keys::FieldSize.as_bytes());
 
-pub static POWERUPS: Keymap<Addr, (Powerup, u8), Json, WithoutIter> =
-            KeymapBuilder::new(Keys::Powerups.as_bytes()).without_iter().build();
+pub static USER_POWERUPS: Keymap<Powerup, u8, Json, WithIter> =
+            KeymapBuilder::new(Keys::Powerups.as_bytes()).build();
 
 
-pub static USER_COOLDOWNS: Keymap<Addr, u64, Bincode2, WithoutIter> =
+pub static USER_COOLDOWNS: Keymap<String, u64, Bincode2, WithoutIter> =
     KeymapBuilder::new(Keys::UserCooldowns.as_bytes()).without_iter().build();
 
 

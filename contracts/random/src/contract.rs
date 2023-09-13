@@ -23,7 +23,7 @@ use crate::{
     random::{try_saving_random_number, get_saved_random_number, randomness_seed}, error::ContractError,
     ibc::{ibc_transfer_incoming, ibc_lifecycle_complete, ibc_timeout}, 
     state::{CellState, CELLS, Config, CONFIG, FIELD_SIZE, CHAIN_AMOUNTS}, 
-    field::valid_field_size
+    field::{valid_field_size, try_opening_cell, try_buying_powerups, get_user_powerups}, utils::{address_from_permit, is_powerup_list_unique}
 };
 
 
@@ -49,18 +49,22 @@ pub fn instantiate(
     
     FIELD_SIZE.save(deps.storage, &field_size)?;
 
-
     // win amounts
-    msg.chain_amounts.iter().for_each(|(denom, amounts)| {
-        CHAIN_AMOUNTS.insert(deps.storage, &denom, &amounts).unwrap();
-    });
+    for (denom, amounts) in msg.chain_amounts.iter() {
+        let powerup_list = amounts.power_ups
+                .iter().map(|(powerup, _)| powerup.clone()).collect::<Vec<_>>();
 
+        if amounts.power_ups.len() != 3 || !is_powerup_list_unique(&powerup_list) {
+            return Err(ContractError::InvalidPowerupAmounts {});
+        }
+        CHAIN_AMOUNTS.insert(deps.storage, &denom, &amounts).unwrap();
+    }
 
     // config
     let cell_cooldown = msg.cell_cooldown.unwrap_or(2*ONE_DAY);
     let user_cooldown = msg.user_cooldown.unwrap_or(ONE_DAY);
     // default around 4%
-    let win_threshold = msg.win_threshold.unwrap_or((u8::MAX * 2) as u16 - 20u16);
+    let win_threshold = msg.win_threshold.unwrap_or(u8::MAX as u16 * 2 - 20u16);
 
 
     CONFIG.save(deps.storage, &Config { 
@@ -69,12 +73,11 @@ pub fn instantiate(
         user_cooldown,
     })?;
 
-
     let mut ring = ChaChaRng::from_seed(
         randomness_seed(&env.block, info.sender.as_str())
     );
     let generator = ring.as_rngcore();
-    for i in 0..field_size {
+    for i in 1..(field_size+1) {
         CELLS.insert(deps.storage, &i, &CellState {
             random: (generator.next_u32() % u8::MAX as u32) as u8,
             open_at: env.block.time.seconds()
@@ -91,6 +94,41 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
         ExecuteMsg::UpdateMyRandomNumber { 
             permit 
         } => try_saving_random_number(deps, env, permit),
+
+        ExecuteMsg::OpenCell { 
+            permit,
+            cell_id,
+            powerups,
+            power_up_autopay
+        } => {
+
+            let sender = address_from_permit(deps.as_ref(), &env, &permit)?;
+                
+            try_opening_cell(
+                deps, 
+                env, 
+                sender,
+                cell_id, 
+                powerups, 
+                power_up_autopay,
+                info.funds
+            )
+        },
+
+        ExecuteMsg::BuyPowerups { 
+            permit,
+            powerups,
+        } => {
+
+            let sender = address_from_permit(deps.as_ref(), &env, &permit)?;
+                
+            try_buying_powerups(
+                deps, 
+                sender,
+                powerups,
+                info.funds
+            )
+        },
 
         ExecuteMsg::TempTest { } => {
             deps.api.debug("Temp Test");
@@ -125,6 +163,8 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
 pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::GetMyRandomNumber { permit } => to_binary(&get_saved_random_number(deps, env, permit)?),
+        QueryMsg::GetMyPowerups { permit } => to_binary(&get_user_powerups(deps, env, permit)?),
+
     }
 }
 

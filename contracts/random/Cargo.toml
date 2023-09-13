@@ -29,7 +29,7 @@ cosmwasm-std = { git = "https://github.com/scrtlabs/cosmwasm", default-features 
   "ibc3",
   "random",
 ] }
-secret-toolkit = { version = "0.7.0",features = ["permit"] }
+secret-toolkit = { version = "0.9.0",features = ["permit"] }
 
 schemars = { version = "0.8.11" }
 serde = { version = "1.0" }
@@ -37,9 +37,6 @@ thiserror = { version = "1.0" }
 cosmwasm-schema = "1.0.0"
 semver = "1.0.18"
 rand_chacha = { version = "0.3.1", default-features = false}
-
-# secret-toolkit = { version= "0.9.0", features = ["permit"] }
-
 
 [patch.crates-io]
 cosmwasm-std = { git = "https://github.com/scrtlabs/cosmwasm", branch = "ibc-msg-transfer-memo", package = "secret-cosmwasm-std" }

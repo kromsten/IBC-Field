@@ -27,11 +27,11 @@ pub fn is_powerup_list_unique(powerup_list: &Vec<Powerup>) -> bool {
     )
 }
 
-pub fn is_powerup_included(powerup_list: &Vec<Powerup>, powerup: Powerup) -> bool {
+pub fn is_powerup_included(powerup_list: &Vec<Powerup>, powerup: &Powerup) -> bool {
     if powerup_list.is_empty() { return false };
 
     powerup_list
     .iter()
-    .any(|pup| pup == &powerup)
+    .any(|pup| pup == powerup)
 }
 

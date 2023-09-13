@@ -1,4 +1,4 @@
-use cosmwasm_std::{CosmosMsg, Attribute, BankMsg, Deps, Addr, coins};
+use cosmwasm_std::{CosmosMsg, Attribute, BankMsg, Deps, coins};
 use crate::error::ContractError;
 
 const SCRT_DENOM : &str = "uscrt";
@@ -7,7 +7,7 @@ const SCRT_DENOM : &str = "uscrt";
 
 pub fn reward(
     deps: Deps,
-    sender: Addr,
+    sender: String,
     amount: u128,
     msgs: &mut Vec<CosmosMsg>,
     attributes: &mut Vec<Attribute>,
@@ -29,7 +29,7 @@ pub fn reward(
 
 fn reward_scrt(
     deps: Deps,
-    sender: Addr,
+    sender: String,
     amount: u128,
 ) -> Result<BankMsg, ContractError> {
 
@@ -45,7 +45,7 @@ fn reward_scrt(
 
 fn reward_remote(
     _deps: Deps,
-    _sender: Addr,
+    _sender: String,
     _amount: u128,
 ) -> Result<BankMsg, ContractError> {
     todo!("Implement this")

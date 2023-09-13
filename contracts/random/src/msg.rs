@@ -1,7 +1,7 @@
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Uint64, Coin};
 use secret_toolkit::permit::Permit;
-use crate::state::ChainAmount;
+use crate::state::{ChainAmount, Powerup};
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -16,6 +16,18 @@ pub struct InstantiateMsg {
 pub enum ExecuteMsg {
     UpdateMyRandomNumber {
         permit: Permit
+    },
+
+    OpenCell {
+        cell_id: u8,
+        permit: Permit,
+        powerups: Vec<Powerup>,
+        power_up_autopay: Option<bool>
+    },
+
+    BuyPowerups {
+        powerups: Vec<Powerup>,
+        permit: Permit,
     },
 
     TempTest {},
@@ -58,6 +70,9 @@ pub enum IBCLifecycleComplete {
 #[cw_serde]
 pub enum QueryMsg {
     GetMyRandomNumber {
+        permit: Permit
+    },
+    GetMyPowerups {
         permit: Permit
     }
 }

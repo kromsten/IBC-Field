@@ -7,3 +7,4 @@ pub mod field;
 pub mod rewards;
 pub mod error;
 pub mod ibc;
+pub mod tests;
