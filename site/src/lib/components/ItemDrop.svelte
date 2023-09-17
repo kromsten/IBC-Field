@@ -1,85 +1,59 @@
 <script lang="ts">
     import Akash from "$lib/components/graphics/Akash.svelte";
-    //import { getNotificationsContext } from 'svelte-notifications';
-    
-    export let labelled = "";
     export let text : string, name : string, price : number;
     
     export let count : number;
 
-    //const { addNotification } = getNotificationsContext();
-    
     let loading = false;
     
     let toBuy = 1
 
     const submit = () => {
-
         if (toBuy == 0) return;
-        
         if (!loading) {
             loading = true;
             setTimeout(() => {
-
                 count += toBuy;
                 loading = false;
-
-                /* addNotification({
-                    position: 'top-center',
-                    removeAfter: 4000,
-                    type: "purchase",
-                    count: toBuy,
-                    text : "Check",
-                    name : name
-                }) */
-
             }, 5000);
         } 
     }
-
-
 </script>
 
-<div class="dropdown-menu p-2 pl-5 pr-5" aria-labelledby={labelled}>
-    
+
+
+<div class="center max-w-min flex-col text-center gap-2 bg-purple-50 px-2 py-3 md:py-1 border border-2 rounded border-primary-400/50 max-w-xs">
     <h6>{name}</h6>
-    <div class="mb-2 text-muted">{text}</div>
-    
-    <form on:submit|preventDefault={submit} class="pl-3 pr-3 ">
-        
-        <div class="form-group">
-            <label for="buy-{name}">Buy</label>
-            
-            <div class="input-group input-group-sm d-flex justify-content-around">
-                <input id="buy-{name}" class="form-control col" type="number" min="1" max="99" bind:value={toBuy} disabled={loading}/>
-                <button type="submit" class="btn btn-outline-success btn-sm col" >
-                    <Akash {loading} /> 
-                    { #if !loading}<span>{ toBuy * price }</span>{/if}
-                </button>
-            </div>
+    <div class="text-muted text-xs">{text}</div>
+    <form on:submit|preventDefault={submit} class="center gap-3 px-2">
+        <div class="flex gap-2 items-center">
+            <span class="text-sm">Buy</span>
+            <input class="center" placeholder="1" title="1" type="number" min="1" max="10" bind:value={toBuy}>
+            <span>with</span>
+            <button class="mx-1 px-2 btn variant-filled-primary px-0" disabled={loading}>
+                { #if !loading || true }<span>{ toBuy * price }</span>{/if}
+                <Akash {loading} /> 
+            </button>
         </div>
     </form>
-</div>
+</div> 
+
+
 
 <style>
 
-    .dropdown-menu {
-        max-width: 10vw;
-        font-size: 0.6em;
-        border: 1px solid rgb(72 45 18);
-        background-color: rgb(255 253 247);
+
+    input {
+        width: 1rem;
+        text-align: center;
+        background-color: transparent;
+        border: none;
+        border-bottom: 2px solid #c5a3c8;
     }
 
-    .input-group {
-        gap: 1.0em;
-    }
-
-    form input {
-        flex-grow: 3;
-    }
-
-    form button {
-        flex-grow: 2;
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
 
     input:focus {
@@ -98,12 +72,9 @@
         box-shadow: 0 0 0 0.25rem rgb(25 135 84 / 50%);
     }
 
-    button:focus:hover {
+    button:hover {
         color: #42ae7c;
-    }
-
-    :global(button:hover:not(:focus) .st0) {
-        fill: white;
+        transform: scale(1.1);
     }
 
     h6 {

@@ -1,9 +1,9 @@
 <script lang="ts">
   import { filter } from "@skeletonlabs/skeleton";
-import Akash from "./Akash.svelte";
-  import Clover from "./Clover.svelte";
-  import Fertilizer from "./Fertilizer.svelte";
-  import Shovel from "./Shovel.svelte";
+import Akash from "./graphics/Akash.svelte";
+  import Clover from "./graphics/Clover.svelte";
+  import Fertilizer from "./graphics/Fertilizer.svelte";
+  import Shovel from "./graphics/Shovel.svelte";
 
 
     const cost = 2;
@@ -53,17 +53,17 @@ import Akash from "./Akash.svelte";
 
 <div class="bg-purple-50 px-2 border border-1 border-primary-400/50">
     <form on:submit|preventDefault={submit} class="center gap-3 py-2 px-2">
-        <span class="text-sm">Buy with</span>
-        <button class="btn variant-filled-primary px-0">
+        <span class="text-sm font-bold">Buy with</span>
+        <button class="btn variant-filled-primary px-0 logo" disabled={loading}>
+            { #if !loading || true }<span>{ cost }</span>{/if}
             <Akash {loading} /> 
-            { #if !loading || true }<span>{ cost } AKT</span>{/if}
         </button>
     </form>
 
     <hr class="dropdown-divider">
     
     <div class="gap-3 py-2 px-2">
-        <div class="center text-xs mb-2">Powerups: {Object.values(powerups).filter(p => p.active).length}</div>
+        <div class="center text-xs font-bold mb-2">POWERUPS TO USE</div>
         <div class="center gap-3 items"> 
             { #each Object.entries(powerups) as [key, info] (key) }
                 <button class:active={info.active} on:click={() => powerups[key].active = !info.active} type="button">
@@ -72,7 +72,6 @@ import Akash from "./Akash.svelte";
             {/each}
         </div>
     </div>
-
 </div>
 
 
@@ -82,6 +81,16 @@ import Akash from "./Akash.svelte";
 
     hr {
         color: #402f0fd6;
+    }
+
+
+    button.active   {
+        background-color: rgb(255 253 247);
+        box-shadow: 0 0 0 0.25rem rgb(25 135 84 / 50%);
+    }
+
+    button.logo:hover {
+        transform: scale(1.2);
     }
 
 
