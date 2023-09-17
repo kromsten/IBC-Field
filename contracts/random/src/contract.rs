@@ -21,9 +21,9 @@ use rand_chacha::{
 use crate::{
     msg::{ExecuteMsg, QueryMsg, IBCLifecycleComplete, SudoMsg, InstantiateMsg}, 
     random::{try_saving_random_number, get_saved_random_number, randomness_seed}, error::ContractError,
-    ibc::{ibc_lifecycle_complete, ibc_timeout}, 
+    ibc::{ibc_lifecycle_complete, ibc_timeout, ibc_transfer_accept}, 
     state::{CellState, CELLS, Config, CONFIG, FIELD_SIZE, NETWORK_CONFIGS}, 
-    field::{valid_field_size, try_opening_cell}, utils::{address_from_permit, is_powerup_list_unique}, admin::{forwards_funds, set_app_status}, powerups::{try_buying_powerups, get_user_powerups}, networks::{get_all_network_configs, get_network_config}
+    field::{valid_field_size, try_opening_cell}, utils::{address_from_permit, is_powerup_list_unique, is_chain_id_list_unique}, admin::{forwards_funds, set_app_status}, powerups::{try_buying_powerups, get_user_powerups}, networks::{get_all_network_configs, get_network_config}
 };
 
 
@@ -38,9 +38,6 @@ pub fn instantiate(
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
 
-    deps.api
-        .debug(format!("Contract was initialized by {}", info.sender).as_str());
-
     // field size
     let field_size = msg.field_size.unwrap_or(64);
     if !valid_field_size(field_size) {
@@ -50,7 +47,13 @@ pub fn instantiate(
     FIELD_SIZE.save(deps.storage, &field_size)?;
 
     // win amounts
+
+    let mut chain_ids: Vec<String> = Vec::with_capacity(msg.network_configs.len());
+
     for (denom, configs) in msg.network_configs.iter() {
+
+        chain_ids.push(configs.chain_id.clone());
+
         let powerup_list = configs.power_ups
                 .iter().map(|(powerup, _)| powerup.clone()).collect::<Vec<_>>();
 
@@ -63,6 +66,10 @@ pub fn instantiate(
         }
 
         NETWORK_CONFIGS.insert(deps.storage, &denom, &configs).unwrap();
+    }
+
+    if !is_chain_id_list_unique(&chain_ids) {
+        return Err(ContractError::DuplicateChainIds {});
     }
 
     // config
@@ -88,6 +95,11 @@ pub fn instantiate(
             open_at: env.block.time.seconds()
         })?
     }
+
+
+    deps.api
+        .debug(format!("Contract was initialized by {}", info.sender).as_str());
+
 
     Ok(Response::default())
 }
@@ -141,6 +153,13 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
             amount,
         } => forwards_funds(deps.as_ref(), info.sender, to_address, amount),
 
+       /*  ExecuteMsg::IBCTransfer {
+            channel_id,
+            to_address,
+            amount,
+            timeout_sec_from_now,
+        } => ibc_transfer_accept(env, channel_id, to_address, amount, timeout_sec_from_now),
+ */
 
         ExecuteMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCAck {
             channel,

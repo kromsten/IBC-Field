@@ -49,8 +49,9 @@ pub struct  CellState {
 
 #[cw_serde]
 pub struct  NetworkConfig {
+    pub chain_id: String,
     pub channel_id: Option<String>,
-    pub hrp: Option<String>,
+    pub hrp: Option<String>, 
     
     pub to_win: u128,
     pub to_open: u128,
@@ -69,8 +70,8 @@ enum Keys {
     Cells = b'c',
     Channels = b'h',
     FieldSize = b'f',
-    ChainAmounts = b'a',
-    Admin = b'm',
+    NetworkConfigs = b'n',
+    Admin = b'a',
     AppStatus = b's',
 }
 
@@ -113,7 +114,7 @@ pub static USER_COOLDOWNS: Keymap<String, u64, Bincode2, WithoutIter> =
     KeymapBuilder::new(Keys::UserCooldowns.as_bytes()).without_iter().build();
 
 pub static NETWORK_CONFIGS: Keymap<String, NetworkConfig, Json> =
-    KeymapBuilder::new(Keys::ChainAmounts.as_bytes()).build();
+    KeymapBuilder::new(Keys::NetworkConfigs.as_bytes()).with_page_size(10).build();
 
 pub static CELLS: Keymap<u8, CellState, Bincode2, WithoutIter> =
             KeymapBuilder::new(Keys::Cells.as_bytes()).without_iter().build();

@@ -2,7 +2,6 @@ use cosmwasm_std::{CosmosMsg, Attribute, BankMsg, Deps, coins, Env, IbcMsg, coin
 use crate::{error::ContractError, state::NETWORK_CONFIGS};
 
 const SCRT_DENOM : &str = "uscrt";
-// const AKT_DENOM : &str = "uakt";
 
 
 pub fn reward(

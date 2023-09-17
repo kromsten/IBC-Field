@@ -13,6 +13,9 @@ pub enum ContractError {
     #[error("Empty powerup list")]
     EmptyPowerupList {},
 
+    #[error("Duplicate chain id list")]
+    DuplicateChainIds {},
+
     #[error("Cell {0} is not found")]
     NotFound(u8),
 

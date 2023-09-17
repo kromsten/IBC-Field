@@ -7,6 +7,7 @@ export type ContractInfo = {
 export type IbcInfo = {
     secret_channel: string;
     consumer_channel: string;
+    ibc_denom?: string;
 }
 
 export type Config = {
@@ -14,5 +15,25 @@ export type Config = {
     ibc_info?: IbcInfo
 }
 
+export enum Powerup {
+    Clover = "clover",
+    Shovel = "shovel",
+    Fertilizer = "fertilizer",
+}
 
-export type InitMsg = {}
+export type NetworkConfig = {
+    chain_id: string,
+    channel_id?: string,
+    hrp?: string,
+    to_win: string,
+    to_open: string,
+    power_ups: [Powerup, string][]
+};
+
+
+export type NetworkConfigResult = NetworkConfig;
+export type AllNetworkConfigResult = [string, NetworkConfig][];
+
+export type InitMsg = {
+    network_configs:[string, NetworkConfig][]
+}
