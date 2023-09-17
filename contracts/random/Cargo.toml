@@ -29,7 +29,7 @@ cosmwasm-std = { git = "https://github.com/scrtlabs/cosmwasm", default-features 
   "ibc3",
   "random",
 ] }
-secret-toolkit = { version = "0.9.0",features = ["permit"] }
+secret-toolkit = { version = "0.9.0", default-features = false,  features = ["permit", "storage"] }
 
 schemars = { version = "0.8.11" }
 serde = { version = "1.0" }

@@ -1,5 +1,5 @@
 use cosmwasm_schema::cw_serde;
-use cosmwasm_std::Coin;
+use cosmwasm_std::{Coin, Uint64};
 use secret_toolkit::permit::Permit;
 use crate::state::{NetworkConfig, Powerup, AppStatus};
 
@@ -38,6 +38,14 @@ pub enum ExecuteMsg {
         to_address: String,
         amount: Vec<Coin>,
     },
+
+    /* #[serde(rename = "ibc_transfer")]
+    IBCTransfer {
+        channel_id: String,
+        to_address: String,
+        amount: Coin,
+        timeout_sec_from_now: Uint64,
+    }, */
 
     #[serde(rename = "ibc_lifecycle_complete")]
     IBCLifecycleComplete(IBCLifecycleComplete),

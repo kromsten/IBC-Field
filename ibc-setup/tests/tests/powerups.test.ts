@@ -1,9 +1,10 @@
 import { test, describe} from 'vitest';
 import { loadConfig } from './config';
-import { consumerClient, secretClient } from './clients';
+import { consumerClient } from './clients';
 import { sendIBCToken } from './ibc';
 import { getPermit, sleep } from './utils';
 import { CONSUMER_CHAIN_ID, CONSUMER_TOKEN } from './env';
+import { Powerup } from './types';
 
 describe('Execute remote contract', () => {
 
@@ -24,8 +25,11 @@ describe('Execute remote contract', () => {
             wasm: {
                 contract: contract_address!,
                 msg: {
-                    update_my_random_number: {
-                        permit
+                    buy_powerups: {
+                        permit,
+                        powerups: [
+                            Powerup.Shovel
+                        ],
                     }
                 }
             }
@@ -35,26 +39,13 @@ describe('Execute remote contract', () => {
             consumerClient,
             contract_address,
             CONSUMER_TOKEN,
-            "2",
+            "3000000",
             config.ibc_info?.consumer_channel!,
             JSON.stringify(msg)
         )
 
 
         await sleep(500);
-
-        try {
-            const res = await secretClient.query.compute.queryContract({
-                contract_address: config.contract_info!.contract_address!,
-                code_hash: config.contract_info!.code_hash,
-                query: {
-                    get_my_random_number: { permit }
-                }
-            })
-            console.log("query rarndom number:", res)
-        } catch (e) {
-            console.log("query rn error:", e)
-        }
 
     })
 

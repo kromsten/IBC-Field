@@ -1,9 +1,10 @@
 
 import { readFileSync } from "fs"
 import { sha256 } from "@noble/hashes/sha256";
-import { toHex, type SecretNetworkClient, MsgStoreCodeParams, TxResultCode, MsgInstantiateContractParams, MsgInstantiateContractResponse, MsgExecuteContractResponse } from "secretjs"
+import { toHex, type SecretNetworkClient, MsgStoreCodeParams, TxResultCode, MsgInstantiateContractParams, MsgInstantiateContractResponse } from "secretjs"
 import { loadConfig, saveConfig } from "./config";
-import { InitMsg } from "./types";
+import { InitMsg, Powerup } from "./types";
+import { CONSUMER_CHAIN_ID, SECRET_CHAIN_ID } from "./env";
 
 
 export const uploadContract = async (
@@ -47,12 +48,43 @@ export const instantiateContract = async (
     
     const config = loadConfig();
 
+
     const msg : MsgInstantiateContractParams = {
         code_id: config.contract_info!.code_id,
         code_hash: config.contract_info!.code_hash,
         sender: client.address,
         label: `field-${Date.now()}`,
-        init_msg: {} as InitMsg
+        init_msg: {
+            network_configs: [
+                [
+                    'uscrt', { 
+                        to_open: "1000000",
+                        to_win: "15000000",
+                        power_ups: [
+                            [Powerup.Clover, "9000000"],
+                            [Powerup.Shovel, "3000000"],
+                            [Powerup.Fertilizer, "5000000"],
+                        ],
+                        chain_id: SECRET_CHAIN_ID
+
+                    }
+                ],
+
+                [
+                    config.ibc_info?.ibc_denom!, { 
+                        to_open: "500000",
+                        to_win: "15000000",
+                        power_ups: [
+                            [Powerup.Clover, "8000000"],
+                            [Powerup.Shovel, "2000000"],
+                            [Powerup.Fertilizer, "4000000"],
+                        ],
+                        chain_id: CONSUMER_CHAIN_ID, 
+                        channel_id: config.ibc_info?.secret_channel
+                    }
+                ]
+            ]
+        } as InitMsg
     }
 
     const tx = await client.tx.compute.instantiateContract(msg, { gasLimit: 300_000 });

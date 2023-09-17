@@ -1,6 +1,5 @@
 #[cfg(test)]
 mod tests {
-
     use std::vec;
     use cosmwasm_std::{Env, DepsMut, MessageInfo, Binary, coins, Coin, Attribute, to_binary, from_binary, Deps};
     use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
@@ -8,6 +7,7 @@ mod tests {
     use crate::{msg::{InstantiateMsg, ExecuteMsg, QueryMsg}, contract::{instantiate, execute, ONE_DAY, query}, state::{NetworkConfig, Powerup}, error::ContractError};
     
     
+
     pub fn init(deps: DepsMut, env: &Env, info: &MessageInfo) {
         let msg = InstantiateMsg {
             cell_cooldown: None,
@@ -25,6 +25,7 @@ mod tests {
                             (Powerup::Fertilizer, 60000u128),
                             (Powerup::Clover, 100000u128),
                         ],
+                        chain_id: "test-1".to_string(),
                         channel_id: None,
                         hrp: None
                     }
@@ -39,6 +40,7 @@ mod tests {
                             (Powerup::Fertilizer, 30000u128),
                             (Powerup::Clover, 50000u128),
                         ],
+                        chain_id: "test-2".to_string(),
                         channel_id: None,
                         hrp: None
                     }
