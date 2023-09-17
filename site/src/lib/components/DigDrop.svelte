@@ -1,35 +1,73 @@
 <script lang="ts">
   import { filter } from "@skeletonlabs/skeleton";
-import Akash from "./graphics/Akash.svelte";
-  import Clover from "./graphics/Clover.svelte";
-  import Fertilizer from "./graphics/Fertilizer.svelte";
-  import Shovel from "./graphics/Shovel.svelte";
+    import Akash from "./graphics/Akash.svelte";
+    import Clover from "./graphics/Clover.svelte";
+    import Fertilizer from "./graphics/Fertilizer.svelte";
+    import Shovel from "./graphics/Shovel.svelte";
+    import { cloverCount, cloverPrice, cloverSelected, fertilizerCount, fertilizerPrice, fertilizerSelected, openPrice, shovelCount, shovelPrice, shovelSelected } from "$lib/state";
 
 
-    const cost = 2;
 
     let loading = false;
+    let totalPrice = $openPrice;
 
-    enum PowerUpType {
-        Shovel = 'shovel',
-        Clover = 'clover',
-        Fertilizer = 'fertilizer'
+    let params = {
+        autoBuy: false,
     }
 
 
-    const powerups : {[key: string] : { active: boolean, icon: typeof Shovel}} = {
+    let powerups : {
+        [ key: string ] : { 
+            active: boolean, 
+            count: number,
+            price: number, 
+            icon: typeof Shovel,
+            toggle: () => void
+        }
+    }
+
+    $: powerups = {
         shovel: {
             active: false,
-            icon: Shovel
+            price: $shovelPrice,
+            count: $shovelCount,
+            icon: Shovel,
+            toggle: () => shovelSelected.update(s => !s)
         },
         clover: {
             active: false,
-            icon: Clover
+            price: $cloverPrice,
+            count: $cloverCount,
+            icon: Clover,
+            toggle: () => cloverSelected.update(s => !s)
         },
         fertilizer: {
             active: false,
-            icon: Fertilizer
+            price: $fertilizerPrice,
+            count: $fertilizerCount,
+            icon: Fertilizer,
+            toggle: () => fertilizerSelected.update(s => !s)
         }
+    }
+
+    const activate = (type : string) => {
+
+        let item = powerups[type];
+
+        if (item.count == 0) {
+            if (item.active) {
+                powerups[type].active = false;
+                totalPrice -= item.price
+            } else {
+                powerups[type].active = true;
+                totalPrice += item.price
+            }
+        } else {
+            item.active = !item.active;
+        }
+
+
+        item.toggle();
     }
 
     const submit = () => {
@@ -38,11 +76,9 @@ import Akash from "./graphics/Akash.svelte";
             loading = true;
             setTimeout(() => {
                 loading = false;
-
                 Object.keys(powerups).forEach(key => {
                     powerups[key].active = false;
                 })
-
             }, 2000);
         }
     }
@@ -55,7 +91,7 @@ import Akash from "./graphics/Akash.svelte";
     <form on:submit|preventDefault={submit} class="center gap-3 py-2 px-2">
         <span class="text-sm font-bold">Buy with</span>
         <button class="btn variant-filled-primary px-0 logo" disabled={loading}>
-            { #if !loading || true }<span>{ cost }</span>{/if}
+            { #if !loading || true }<span>{ totalPrice }</span>{/if}
             <Akash {loading} /> 
         </button>
     </form>
@@ -66,7 +102,7 @@ import Akash from "./graphics/Akash.svelte";
         <div class="center text-xs font-bold mb-2">POWERUPS TO USE</div>
         <div class="center gap-3 items"> 
             { #each Object.entries(powerups) as [key, info] (key) }
-                <button class:active={info.active} on:click={() => powerups[key].active = !info.active} type="button">
+                <button class:active={info.active} on:click={() => activate(key)} type="button">
                     <svelte:component this={info.icon} />
                 </button>
             {/each}

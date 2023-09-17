@@ -1,11 +1,13 @@
 <script lang="ts">
     import Akash from "$lib/components/graphics/Akash.svelte";
-    export let text : string, name : string, price : number;
+    export let 
+        text : string, 
+        name : string, 
+        price : number,
+        onBuy : (n : number) => void;
     
-    export let count : number;
 
     let loading = false;
-    
     let toBuy = 1
 
     const submit = () => {
@@ -13,9 +15,9 @@
         if (!loading) {
             loading = true;
             setTimeout(() => {
-                count += toBuy;
+                onBuy(toBuy);
                 loading = false;
-            }, 5000);
+            }, 1000);
         } 
     }
 </script>

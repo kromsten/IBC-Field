@@ -1,19 +1,12 @@
 <script lang="ts">
-  
-  import MenuDrop from "$lib/components/MenuDrop.svelte";
-  
-  import { fly } from 'svelte/transition';
-
-  import { page } from '$app/stores';
-
   import { onMount } from "svelte";
   import Fertilizer from "./graphics/Fertilizer.svelte";
   import Shovel from "./graphics/Shovel.svelte";
   import Clover from "./graphics/Clover.svelte";
   import ItemDrop from "./ItemDrop.svelte";
   import { popup, type PopupSettings } from "@skeletonlabs/skeleton";
+  import { cloverCount, cloverPrice, cloverSelected, fertilizerCount, fertilizerPrice, fertilizerSelected, shovelCount, shovelPrice, shovelSelected } from "$lib/state";
 
-  
 
   let connected = false;
   let address = "123456";
@@ -25,40 +18,50 @@
 
   onMount(async () => {
     connected = localStorage.getItem('connected') == "true";
-    if (connected) connect();
+    if (connected) await connect();
   })
 
-  type CountValue = {
-    count: number,
-    price: number,
-    text: string,
-    name: string
-  }
 
-  const counts : {[key: string] : CountValue} = {
-      plus : {
-        count: 0,
-        price: 5,
+
+  $: counts  = {
+      shovel : {
         text: "Extra shovel let you ignore the time limit and start digging sooner",
-        name: "Shovel"
+        name: "Shovel",
+        icon: Shovel,
+        count: $shovelCount,
+        price: $shovelPrice,
+        selected: $shovelSelected,
+        onBuy: (n : number) => {
+          shovelCount.update(c => c + n);
+        }
       },
-      ignore : {
-        count: 0,
-        price: 10,
+      clover : {
         text: "Increases your luck and the  probability to find something valuable",
-        name: "Clover"
+        name: "Clover",
+        icon: Clover,
+        count: $cloverCount,
+        price: $cloverPrice,
+        selected: $cloverSelected,
+        onBuy: (n : number) => {
+          cloverCount.update(c => c + n);
+        }
       },
-      fert : {
-        count: 0,
-        price: 8,
+      fertilizer : {
         text: "Speed up the growing process and let you dig a recovering hole earlier",
-        name: "Fertilizer"
+        name: "Fertilizer",
+        count: $fertilizerCount,
+        price: $fertilizerPrice,
+        selected: $fertilizerSelected,
+        icon: Fertilizer,
+        onBuy: (n : number) => {
+          fertilizerCount.update(c => c + n);
+        }
       },
     }
 
     const itemDropdownPop: PopupSettings = {
         event: 'click',
-        target: 'itemDropdowm',
+        target: 'itemDropdown',
         placement: 'bottom',
         closeQuery: "",
     };
@@ -74,56 +77,26 @@
   <div class="center gap-5 gap-x-8">
     { #each Object.entries(counts) as [key, value] }
       
-        <li id="dropdownMenuButton-{key}" class="center gap-3" use:popup={itemDropdownPop}>
+        <li class="center gap-3" class:selected={value.selected} use:popup={{
+            ...itemDropdownPop,
+            target: `itemDropdowm-${key}`
+          }}>
           
-          { #if key == "fert"}
-            <Fertilizer />
-          { :else if key == "plus"}
-            <Shovel/>
-          {:else}
-            <Clover/>
-          {/if}
+          <svelte:component this={value.icon} />
           <span>x</span>
           <span>{value.count}</span>
         </li>
 
-        <div data-popup="itemDropdowm">
-          <ItemDrop count={value.count} labelled={"dropdownMenuButton-" + key } {...value} />
-        </div>
-      
-      
-          {/each}
+        <div data-popup="itemDropdowm-{key}">
+          <ItemDrop {...value} />
+        </div>  
+    {/each}
   </div>
 </nav>
 
 
 <style>
 
-  .item-container {
-    flex-grow: 1;
-    justify-content: space-around;
-    display: flex;
-    list-style-type: none;
-    padding-inline-start: 0;
-    margin-bottom: 0;
-    height: 2em;
-  }
-
-  .connector {
-    margin: 0 0.2em;
-    padding: 0.2em 0.45em;
-    display: flex;
-    align-items: center;
-  }
-
-  .connector:hover {
-    cursor: pointer;
-    transform: scale(1.1);
-  }
-
-  .account {
-    filter: drop-shadow(0 0 0.1em #888);
-  }
 
   nav {
     position: sticky;
@@ -145,39 +118,19 @@
     justify-content: center;
   }
 
+  li.selected {
+    background-color: #f5f5f5;
+    border-radius: 0.5em;
+  }
+
   
   li:hover {
     cursor: pointer;
   }
 
-  .nothome {
-    padding-inline-start: 5%;
-    justify-content: start;
-  }
-
-  :global(li > svg) {
-    height: 100%;
-  }
-
-  :global(li > svg:hover) {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 0.1em #888);
-  }
-
 
   nav {
       z-index: 1;
-  }
-
-  a {
-    color: black;
-    filter: drop-shadow(0 0 0.1em #888);
-    text-decoration: none;
-  }
-
-  a:hover {
-    cursor: pointer;
-    transform: scale(1.1);
   }
 
 </style>
