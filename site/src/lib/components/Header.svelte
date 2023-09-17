@@ -1,36 +1,18 @@
-<script>
-	import logo from '$lib/images/akash-logo.svg';
+<script lang="ts">
+    import { onMount } from "svelte";
+    import { connected } from "$lib/web3";
+
+
+    const connect = () => {}
+
+
+    onMount(async () => {
+        const connectedBefore = localStorage.getItem('connected') == "true";
+        if (connected) await connect();
+    })
+
+
+    import Nav from "./Nav.svelte";
 </script>
 
-<header>
-	<div class="corner">
-		<a href="/">
-			<img src={logo} alt="SvelteKit" />
-		</a>
-	</div>
-
-</header>
-
-<style>
-
-	.corner {
-		width: 3em;
-		height: 3em;
-	}
-
-	.corner a {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-	}
-
-	.corner img {
-		width: 2em;
-		height: 2em;
-		object-fit: contain;
-	}
-
-
-</style>
+<Nav />

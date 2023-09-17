@@ -12,17 +12,6 @@
   let address = "123456";
 
 
-  const connect = () => {
-
-  }
-
-  onMount(async () => {
-    connected = localStorage.getItem('connected') == "true";
-    if (connected) await connect();
-  })
-
-
-
   $: counts  = {
       shovel : {
         text: "Extra shovel let you ignore the time limit and start digging sooner",
@@ -75,6 +64,7 @@
 <nav class="center py-5">
 
   <div class="center gap-5 gap-x-8">
+
     { #each Object.entries(counts) as [key, value] }
       
         <li class="center gap-3" class:selected={value.selected} use:popup={{
@@ -90,7 +80,9 @@
         <div data-popup="itemDropdowm-{key}">
           <ItemDrop {...value} />
         </div>  
+
     {/each}
+
   </div>
 </nav>
 
@@ -119,7 +111,7 @@
   }
 
   li.selected {
-    background-color: #f5f5f5;
+    background-color: #ffeff4;
     border-radius: 0.5em;
   }
 

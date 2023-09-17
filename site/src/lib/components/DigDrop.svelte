@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { filter } from "@skeletonlabs/skeleton";
     import Akash from "./graphics/Akash.svelte";
     import Clover from "./graphics/Clover.svelte";
     import Fertilizer from "./graphics/Fertilizer.svelte";

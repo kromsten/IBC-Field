@@ -179,7 +179,6 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::GetMyPowerups { permit } => to_binary(&get_user_powerups(deps, env, permit)?),
         QueryMsg::NetworkConfig { denom } => to_binary(&get_network_config(deps, denom)),
         QueryMsg::AllNetworkConfigs {} => to_binary(&get_all_network_configs(deps)?),
-
         QueryMsg::Main { permit } => to_binary(&get_main(deps, env, permit)?),
     }
 }
@@ -215,7 +214,7 @@ pub fn get_main(
     } else {
         None
     };
-    
+
     let network_configs = get_all_network_configs(deps)?;
     Ok(MainPageResponse {
         cells: field_res.cells,
