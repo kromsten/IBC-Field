@@ -63,9 +63,8 @@
                 totalPrice += item.price
             }
         } else {
-            item.active = !item.active;
+            powerups[type].active = !item.active;
         }
-
 
         item.toggle();
     }
