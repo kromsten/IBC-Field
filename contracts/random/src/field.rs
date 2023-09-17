@@ -1,9 +1,9 @@
-use cosmwasm_std::{Response, Env, DepsMut, CosmosMsg, Coin, Deps, Event, Attribute};
+use cosmwasm_std::{Response, Env, DepsMut, CosmosMsg, Coin, Deps, Event, Attribute, StdResult};
 use rand_chacha::{ChaChaRng, rand_core::{SeedableRng, CryptoRngCore}};
 use crate::{
     state::{CELLS, Powerup, CONFIG, USER_COOLDOWNS, NETWORK_CONFIGS, FIELD_SIZE, USER_POWERUPS}, 
     error::ContractError, utils::{is_powerup_list_unique, is_powerup_included}, 
-    random::randomness_seed, rewards::reward
+    random::randomness_seed, rewards::reward, msg::{GetFieldResponse, CellResInfo}
 };
 
 
@@ -17,6 +17,17 @@ pub fn valid_cell_id(deps: Deps, cell_id: u8) -> bool {
     cell_id > 0 && cell_id <= max
 }
 
+
+pub fn get_field_cells(deps: Deps) -> StdResult<GetFieldResponse> { 
+    let cells: Vec<CellResInfo> = CELLS
+        .iter(deps.storage)?
+        .map(|res| CellResInfo { 
+            open_at: res.unwrap().1.open_at 
+        })
+        .collect();
+
+    Ok(GetFieldResponse { cells })
+}
 
 pub fn try_opening_cell(
     deps: DepsMut,

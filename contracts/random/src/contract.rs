@@ -16,14 +16,15 @@ use rand_chacha::{
         SeedableRng, CryptoRngCore
     }
 };
+use secret_toolkit::permit::Permit;
 
 
 use crate::{
-    msg::{ExecuteMsg, QueryMsg, IBCLifecycleComplete, SudoMsg, InstantiateMsg}, 
+    msg::{ExecuteMsg, QueryMsg, IBCLifecycleComplete, SudoMsg, InstantiateMsg, MainPageResponse}, 
     random::{try_saving_random_number, get_saved_random_number, randomness_seed}, error::ContractError,
-    ibc::{ibc_lifecycle_complete, ibc_timeout, ibc_transfer_accept}, 
+    ibc::{ibc_lifecycle_complete, ibc_timeout}, 
     state::{CellState, CELLS, Config, CONFIG, FIELD_SIZE, NETWORK_CONFIGS}, 
-    field::{valid_field_size, try_opening_cell}, utils::{address_from_permit, is_powerup_list_unique, is_chain_id_list_unique}, admin::{forwards_funds, set_app_status}, powerups::{try_buying_powerups, get_user_powerups}, networks::{get_all_network_configs, get_network_config}
+    field::{valid_field_size, try_opening_cell, get_field_cells}, utils::{address_from_permit, is_powerup_list_unique, is_chain_id_list_unique}, admin::{forwards_funds, set_app_status}, powerups::{try_buying_powerups, get_user_powerups}, networks::{get_all_network_configs, get_network_config}
 };
 
 
@@ -153,13 +154,6 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
             amount,
         } => forwards_funds(deps.as_ref(), info.sender, to_address, amount),
 
-       /*  ExecuteMsg::IBCTransfer {
-            channel_id,
-            to_address,
-            amount,
-            timeout_sec_from_now,
-        } => ibc_transfer_accept(env, channel_id, to_address, amount, timeout_sec_from_now),
- */
 
         ExecuteMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCAck {
             channel,
@@ -180,10 +174,13 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
 #[entry_point]
 pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
+        QueryMsg::GetField {} => to_binary(&get_field_cells(deps)?),
         QueryMsg::GetMyRandomNumber { permit } => to_binary(&get_saved_random_number(deps, env, permit)?),
         QueryMsg::GetMyPowerups { permit } => to_binary(&get_user_powerups(deps, env, permit)?),
         QueryMsg::NetworkConfig { denom } => to_binary(&get_network_config(deps, denom)),
-        QueryMsg::AllNetworkConfigs {} => to_binary(&get_all_network_configs(deps)?)
+        QueryMsg::AllNetworkConfigs {} => to_binary(&get_all_network_configs(deps)?),
+
+        QueryMsg::Main { permit } => to_binary(&get_main(deps, env, permit)?),
     }
 }
 
@@ -203,4 +200,26 @@ pub fn sudo(_deps: DepsMut, _env: Env, msg: SudoMsg) -> Result<Response, Contrac
             sequence,
         }) => ibc_timeout(channel, sequence),
     }
+}
+
+
+pub fn get_main(
+    deps: Deps, 
+    env: Env, 
+    permit: Option<Permit>
+) -> StdResult<MainPageResponse> {
+    let field_res = get_field_cells(deps)?;
+
+    let powerups = if permit.is_some() {
+        Some(get_user_powerups(deps, env, permit.unwrap())?)
+    } else {
+        None
+    };
+    
+    let network_configs = get_all_network_configs(deps)?;
+    Ok(MainPageResponse {
+        cells: field_res.cells,
+        powerups,
+        network_configs
+    })
 }

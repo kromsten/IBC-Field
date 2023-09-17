@@ -1,5 +1,10 @@
 import { writable } from "svelte/store";
 
+export const chainId = writable("");
+export const token = writable("");
+
+export const cells = writable([]);
+
 export const walletConnected = writable(false);
 export const walletAddress = writable("");
 

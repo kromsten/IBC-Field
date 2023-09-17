@@ -116,5 +116,5 @@ pub static USER_COOLDOWNS: Keymap<String, u64, Bincode2, WithoutIter> =
 pub static NETWORK_CONFIGS: Keymap<String, NetworkConfig, Json> =
     KeymapBuilder::new(Keys::NetworkConfigs.as_bytes()).with_page_size(10).build();
 
-pub static CELLS: Keymap<u8, CellState, Bincode2, WithoutIter> =
-            KeymapBuilder::new(Keys::Cells.as_bytes()).without_iter().build();
+pub static CELLS: Keymap<u8, CellState, Bincode2> =
+            KeymapBuilder::new(Keys::Cells.as_bytes()).with_page_size(64).build();

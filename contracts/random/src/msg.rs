@@ -1,5 +1,5 @@
 use cosmwasm_schema::cw_serde;
-use cosmwasm_std::{Coin, Uint64};
+use cosmwasm_std::Coin;
 use secret_toolkit::permit::Permit;
 use crate::state::{NetworkConfig, Powerup, AppStatus};
 
@@ -39,14 +39,6 @@ pub enum ExecuteMsg {
         amount: Vec<Coin>,
     },
 
-    /* #[serde(rename = "ibc_transfer")]
-    IBCTransfer {
-        channel_id: String,
-        to_address: String,
-        amount: Coin,
-        timeout_sec_from_now: Uint64,
-    }, */
-
     #[serde(rename = "ibc_lifecycle_complete")]
     IBCLifecycleComplete(IBCLifecycleComplete),
 }
@@ -77,6 +69,9 @@ pub enum IBCLifecycleComplete {
 
 #[cw_serde]
 pub enum QueryMsg {
+
+    GetField {},
+
     GetMyRandomNumber {
         permit: Permit
     },
@@ -89,6 +84,10 @@ pub enum QueryMsg {
     NetworkConfig {
         denom: String
     },
+
+    Main {
+        permit: Option<Permit>
+    }
 }
 
 #[cw_serde]
@@ -110,3 +109,22 @@ pub struct TransferIBCRewardsMsg {
 pub struct OpenCellResponse {}
 
 
+#[cw_serde]
+pub struct CellResInfo {
+    pub open_at: u64,
+}
+
+
+
+#[cw_serde]
+pub struct GetFieldResponse {
+    pub cells: Vec::<CellResInfo>
+}
+
+
+#[cw_serde]
+pub struct MainPageResponse {
+    pub cells: Vec::<CellResInfo>,
+    pub powerups: Option<Vec::<(Powerup, u8)>>,
+    pub network_configs: Vec::<(String, NetworkConfig)>
+}
