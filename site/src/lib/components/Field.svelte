@@ -1,5 +1,5 @@
 <script lang="ts">
-    import DigDrop from "./graphics/DigDrop.svelte";
+    import DigDrop from "./DigDrop.svelte";
 	import Cell from "./Cell.svelte";
 
     import { popup } from '@skeletonlabs/skeleton';
