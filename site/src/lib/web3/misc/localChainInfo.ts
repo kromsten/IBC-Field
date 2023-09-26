@@ -21,7 +21,7 @@ export const getLocalSecretChainInfo = (
         "rpc": endpoint!,
         "rest": endpoint!,
         "chainId": chainId,
-        "chainName": "Local Secret" + nameSuffix,
+        "chainName": "Local Secret " + nameSuffix,
         "chainSymbolImageUrl": "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/secret/chain.png",
         "stakeCurrency": {
           "coinDenom": "SCRT",

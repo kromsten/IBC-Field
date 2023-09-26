@@ -15,6 +15,8 @@ export const getClient = (
     url: string,
 ) : SecretNetworkClient => {
 
+    if (secretClientValue) return secretClientValue;
+
     const client =  new SecretNetworkClient({
         chainId,
         url,

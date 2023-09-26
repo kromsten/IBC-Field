@@ -3,7 +3,10 @@
     import Clover from "./graphics/Clover.svelte";
     import Fertilizer from "./graphics/Fertilizer.svelte";
     import Shovel from "./graphics/Shovel.svelte";
-    import { cloverCount, cloverPrice, cloverSelected, fertilizerCount, fertilizerPrice, fertilizerSelected, openPrice, shovelCount, shovelPrice, shovelSelected } from "$lib/state";
+    import { cloverCount, cloverPrice, cloverSelected, fertilizerCount, fertilizerPrice, fertilizerSelected, openPrice, permit, shovelCount, shovelPrice, shovelSelected } from "$lib/state";
+    import { openCell } from "$lib/web3/contract";
+    import { consumerSigningClient } from "$lib/web3/clients";
+  import { clearSelection, fromNumber } from "$lib/utils";
 
 
 
@@ -71,13 +74,24 @@
     const submit = () => {
 
         if (!loading) {
+
+            clearSelection();
+
             loading = true;
-            setTimeout(() => {
+
+            openCell(
+                $consumerSigningClient,
+                1,
+                $permit,
+                [],
+                fromNumber(totalPrice)
+            )
+            .then(() => {
                 loading = false;
                 Object.keys(powerups).forEach(key => {
                     powerups[key].active = false;
                 })
-            }, 2000);
+            });
         }
     }
 
