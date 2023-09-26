@@ -1,15 +1,10 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import Fertilizer from "./graphics/Fertilizer.svelte";
   import Shovel from "./graphics/Shovel.svelte";
   import Clover from "./graphics/Clover.svelte";
   import ItemDrop from "./ItemDrop.svelte";
   import { popup, type PopupSettings } from "@skeletonlabs/skeleton";
   import { cloverCount, cloverPrice, cloverSelected, fertilizerCount, fertilizerPrice, fertilizerSelected, shovelCount, shovelPrice, shovelSelected } from "$lib/state";
-
-
-  let connected = false;
-  let address = "123456";
 
 
   $: counts  = {
@@ -90,17 +85,6 @@
 <style>
 
 
-  nav {
-    position: sticky;
-    top: 0;
-    display: flex;
-    flex-wrap: wrap;
-    padding: 0.3em;
-    background: linear-gradient( 14deg, #8ac396 0%, #b78ac3 100%);
-    border-bottom: 0.5px solid #618869;
-    border-bottom-left-radius: 7%;
-    border-bottom-right-radius: 7%;
-  }
 
   li {
     padding: 0.2em;
