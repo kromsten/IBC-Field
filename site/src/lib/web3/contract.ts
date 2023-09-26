@@ -65,6 +65,33 @@ export const openCell = async (
 }
 
 
+export const buyPowerup = async (
+    client: SecretNetworkClient,
+    permit: Permit,
+    powerups: Powerup[],
+    amount: string
+) => {
+
+    const contractMsg = {
+        buy_powerups: {
+            powerups,
+            permit
+        }
+    }
+    const res =  await executeOverIBC(
+        client,
+        contractMsg,
+        amount
+    )
+
+    const ibcRes = await res.ibcResponses[0];
+
+    console.log("IBC RES:", ibcRes)
+
+    return res;
+}
+
+
 export const queryContract = async (
     query: object
   ) : Promise<any> => {
@@ -123,11 +150,11 @@ export const getMainPageInfo = async (
     if (res.powerups) {
         for (const [pup, count] of res.powerups) {
             if (pup == Powerup.Clover) {
-                cloverCount.set(toNumber(count))
+                cloverCount.set(count)
             } else if (pup == Powerup.Fertilizer) {
-                fertilizerCount.set(toNumber(count))
+                fertilizerCount.set(count)
             } else if (pup == Powerup.Shovel) {
-                shovelCount.set(toNumber(count))
+                shovelCount.set(count)
             }
         }
     }

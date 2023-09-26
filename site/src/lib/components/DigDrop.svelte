@@ -7,8 +7,8 @@
     import { openCell } from "$lib/web3/contract";
     import { consumerSigningClient } from "$lib/web3/clients";
     import { clearSelection, fromNumber } from "$lib/utils";
-  import { getPermit } from "$lib/web3";
-  import type { Permit } from "secretjs";
+    import { getPermit } from "$lib/web3";
+    import type { Permit } from "secretjs";
 
     let loading = false;
     let totalPrice = $openPrice;
@@ -52,6 +52,14 @@
         }
     }
 
+    const clear = () => {
+        Object.keys(powerups).forEach(key => {
+            powerups[key].active = false;
+        })
+        clearSelection();
+        loading = false;
+    }
+
     const activate = (type : string) => {
 
         let item = powerups[type];
@@ -80,7 +88,13 @@
 
             const client = $consumerSigningClient;
             const permitValue : Permit = $permit ?? await getPermit($consumerSigningClient);
-            console.log("PV:", permitValue);
+
+
+            if (permitValue == null) {
+                clear();
+                console.error("No permit");
+                return;
+            }
 
             openCell(
                 client,
@@ -90,15 +104,9 @@
                 fromNumber(totalPrice)
             )
             .then(() => {
-                
+                // TODO: Parse events on secret side
             })
-            .finally(() => {
-                Object.keys(powerups).forEach(key => {
-                    powerups[key].active = false;
-                })
-                clearSelection();
-                loading = false;
-            })
+            .finally(clear)
         }
     }
 

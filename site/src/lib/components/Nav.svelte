@@ -5,10 +5,12 @@
   import ItemDrop from "./ItemDrop.svelte";
   import { popup, type PopupSettings } from "@skeletonlabs/skeleton";
   import { cloverCount, cloverPrice, cloverSelected, fertilizerCount, fertilizerPrice, fertilizerSelected, shovelCount, shovelPrice, shovelSelected } from "$lib/state";
+  import { Powerup } from "$lib/types";
 
 
   $: counts  = {
       shovel : {
+        type: Powerup.Shovel,
         text: "Extra shovel let you ignore the time limit and start digging sooner",
         name: "Shovel",
         icon: Shovel,
@@ -20,6 +22,7 @@
         }
       },
       clover : {
+        type: Powerup.Clover,
         text: "Increases your luck and the  probability to find something valuable",
         name: "Clover",
         icon: Clover,
@@ -31,6 +34,7 @@
         }
       },
       fertilizer : {
+        type: Powerup.Fertilizer,
         text: "Speed up the growing process and let you dig a recovering hole earlier",
         name: "Fertilizer",
         count: $fertilizerCount,

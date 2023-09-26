@@ -8,7 +8,7 @@ import {
   PUBLIC_CONSUMER_CHAIN_ID,
   PUBLIC_CONTRACT_ADDRESS, 
 } from "$env/static/public";
-import { queryConfig, getMainPageInfo } from "./contract";
+import { getMainPageInfo } from "./contract";
 import type { Permit, SecretNetworkClient } from "secretjs";
 
 export const connected = writable(false);
@@ -23,8 +23,8 @@ export const getEnigmaUtils = async (chainId: string) => {
 
 
 
-export const getPermit = async (client?: SecretNetworkClient) : Promise<Permit> => {
-  let permit : Permit
+export const getPermit = async (client?: SecretNetworkClient) : Promise<Permit | undefined> => {
+  let permit : Permit | undefined = undefined;
   const localPermit = localStorage.getItem(`permit`);
 
   if (localPermit) {
@@ -40,10 +40,8 @@ export const getPermit = async (client?: SecretNetworkClient) : Promise<Permit> 
     )
     localStorage.setItem(`permit`, JSON.stringify(permit));
   } else {
-    throw new Error(`Can't get Permit`);
+    //throw new Error(`Can't get Permit`);
   }
-
-  console.log(`permit`, permit);
 
   return permit;
 }
@@ -82,6 +80,9 @@ export const initWeb3 = async (chainId?: string | string[], wallet? : WalletType
 
 
 export const setupContractAndListeners = async () => {
-  await getMainPageInfo();
+
+  const permit = await getPermit();
+
+  await getMainPageInfo(permit);
   return false;
 }

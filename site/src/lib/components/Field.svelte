@@ -4,8 +4,8 @@
 
     import { popup } from '@skeletonlabs/skeleton';
     import type { PopupSettings } from '@skeletonlabs/skeleton';
-  import { cells } from "$lib/state";
-  import { onDestroy } from "svelte";
+    import { cells } from "$lib/state";
+    import { onDestroy } from "svelte";
 
 
     const digDropdown: PopupSettings = {

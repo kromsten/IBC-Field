@@ -32,5 +32,5 @@ export type AllNetworkConfigResult = [string, NetworkConfig][];
 export type MainResult = {
     network_configs: AllNetworkConfigResult,
     cells: Cell[],
-    powerups?: [Powerup, string][]
+    powerups?: [Powerup, number][]
 };

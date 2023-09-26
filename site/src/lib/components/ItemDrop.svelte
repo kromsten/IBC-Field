@@ -1,6 +1,15 @@
 <script lang="ts">
     import Akash from "$lib/components/graphics/Akash.svelte";
+    import { permit } from "$lib/state";
+    import type { Powerup } from "$lib/types";
+    import { fromNumber } from "$lib/utils";
+    import { getPermit } from "$lib/web3";
+    import { consumerSigningClient } from "$lib/web3/clients";
+    import { buyPowerup } from "$lib/web3/contract";
+    import type { Permit } from "secretjs";
+    
     export let 
+        type: Powerup,
         text : string, 
         name : string, 
         price : number,
@@ -10,15 +19,36 @@
     let loading = false;
     let toBuy = 1
 
-    const submit = () => {
+    const submit = async () => {
         if (toBuy == 0) return;
         if (!loading) {
+            
+            const client = $consumerSigningClient;
+            const permitValue : Permit = $permit ?? await getPermit($consumerSigningClient);
+
+            if (permitValue == null) {
+                console.error("No permit");
+                return;
+            }
+            
             loading = true;
-            setTimeout(() => {
-                onBuy(toBuy);
+
+            buyPowerup(
+                client,
+                permitValue,
+                Array(toBuy).fill(type),
+                fromNumber(price * toBuy)
+            )
+            .then(() => {
+                // TODO: Parse events on secret side
+            })
+            .finally(() => {
                 loading = false;
-            }, 1000);
-        } 
+                onBuy(toBuy);
+            })
+
+        }
+
     }
 </script>
 
