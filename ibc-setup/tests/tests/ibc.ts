@@ -3,7 +3,6 @@ import { MsgAcknowledgement } from "secretjs/dist/protobuf/ibc/core/channel/v1/t
 import { hasProperty } from "@vitest/expect";
 import { expect } from "chai";
 import { loadConfig } from "./config";
-import { consumerClient, secretClient } from "./clients";
 
 
 export const sendIBCToken = async (

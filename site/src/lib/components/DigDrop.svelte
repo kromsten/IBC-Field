@@ -6,9 +6,9 @@
     import { cloverCount, cloverPrice, cloverSelected, fertilizerCount, fertilizerPrice, fertilizerSelected, openPrice, permit, shovelCount, shovelPrice, shovelSelected } from "$lib/state";
     import { openCell } from "$lib/web3/contract";
     import { consumerSigningClient } from "$lib/web3/clients";
-  import { clearSelection, fromNumber } from "$lib/utils";
-
-
+    import { clearSelection, fromNumber } from "$lib/utils";
+  import { getPermit } from "$lib/web3";
+  import type { Permit } from "secretjs";
 
     let loading = false;
     let totalPrice = $openPrice;
@@ -71,27 +71,34 @@
         item.toggle();
     }
 
-    const submit = () => {
+    const submit = async () => {
 
         if (!loading) {
 
-            clearSelection();
 
             loading = true;
 
+            const client = $consumerSigningClient;
+            const permitValue : Permit = $permit ?? await getPermit($consumerSigningClient);
+            console.log("PV:", permitValue);
+
             openCell(
-                $consumerSigningClient,
+                client,
                 1,
-                $permit,
+                permitValue,
                 [],
                 fromNumber(totalPrice)
             )
             .then(() => {
-                loading = false;
+                
+            })
+            .finally(() => {
                 Object.keys(powerups).forEach(key => {
                     powerups[key].active = false;
                 })
-            });
+                clearSelection();
+                loading = false;
+            })
         }
     }
 

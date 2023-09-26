@@ -43,9 +43,11 @@ export const openCell = async (
 ) => {
 
     const contractMsg = {
-        cell_id,
-        powerups,
-        permit
+        open_cell: {
+            cell_id,
+            powerups,
+            permit
+        }
     }
 
 
@@ -55,7 +57,9 @@ export const openCell = async (
         amount
     )
 
-    console.log("IBC RES:", res)
+    const ibcRes = await res.ibcResponses[0];
+
+    console.log("IBC RES:", ibcRes)
 
     return res;
 }

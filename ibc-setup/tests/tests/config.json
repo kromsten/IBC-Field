@@ -5,8 +5,8 @@
         "ibc_denom": "ibc/834829648E6B51B21713C76E0C1836727DCE221CE3DC8B3AA7BB11F55428887A"
     },
     "contract_info": {
-        "code_id": 1,
-        "code_hash": "57bb46c2085082cf8a2a1944369cbbf203d0a6163b936d1e5b4553851c74d710",
-        "contract_address": "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q"
+        "code_id": 2,
+        "code_hash": "1fdc480d0a726c1fa4cb12e910278bf3416402ff15e1eecc75a8fe8c481f388f",
+        "contract_address": "secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc"
     }
 }

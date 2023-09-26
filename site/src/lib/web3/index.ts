@@ -5,9 +5,11 @@ import { getSigningClient } from "./clients";
 
 import { 
   PUBLIC_CONSUMER_CHAIN_ENDPOINT, 
-  PUBLIC_CONSUMER_CHAIN_ID, 
+  PUBLIC_CONSUMER_CHAIN_ID,
+  PUBLIC_CONTRACT_ADDRESS, 
 } from "$env/static/public";
 import { queryConfig, getMainPageInfo } from "./contract";
+import type { Permit, SecretNetworkClient } from "secretjs";
 
 export const connected = writable(false);
 export const signer = writable<any>();
@@ -19,6 +21,32 @@ export const getEnigmaUtils = async (chainId: string) => {
   return enigmaUtils;
 }
 
+
+
+export const getPermit = async (client?: SecretNetworkClient) : Promise<Permit> => {
+  let permit : Permit
+  const localPermit = localStorage.getItem(`permit`);
+
+  if (localPermit) {
+    permit = JSON.parse(localPermit);
+  } else if (client) {
+    permit = await client.utils.accessControl.permit.sign(
+      client.address,
+      PUBLIC_CONSUMER_CHAIN_ID,
+      "test-permit",
+      [PUBLIC_CONTRACT_ADDRESS],
+      ["owner"],
+      true
+    )
+    localStorage.setItem(`permit`, JSON.stringify(permit));
+  } else {
+    throw new Error(`Can't get Permit`);
+  }
+
+  console.log(`permit`, permit);
+
+  return permit;
+}
 
 
 export const initWeb3 = async (chainId?: string | string[], wallet? : WalletType) => {
