@@ -1,5 +1,5 @@
-use cosmwasm_std::{Response, Env, Coin, Uint64, CosmosMsg, IbcMsg, IbcTimeout};
-use crate::error::ContractError;
+use cosmwasm_std::{Response, Env, Coin, Uint64, CosmosMsg, IbcMsg, IbcTimeout, DepsMut};
+use crate::{error::ContractError, state::{PENDIND_IBC_REWARDS, LAST_REWARD_RECIPIENT}};
 
 
 
@@ -29,11 +29,22 @@ pub fn ibc_transfer_accept(
 
 
 pub fn ibc_lifecycle_complete(
+    deps: DepsMut,
     channel : String,
     sequence : u64 ,
     ack : String,
     success: bool
 ) -> Result<Response, ContractError> {
+
+    let last = LAST_REWARD_RECIPIENT.load(deps.storage);
+
+    if let Ok(last) = last {
+        // successful payment
+        PENDIND_IBC_REWARDS.remove(deps.storage, &last)?;
+    } else {
+        // failed payment
+    }
+
     Ok(Response::default().add_attributes(vec![
         ("ibc_lifecycle_complete.ibc_ack.channel", channel),
         ("ibc_lifecycle_complete.ibc_ack.sequence",sequence.to_string()),

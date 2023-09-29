@@ -129,7 +129,13 @@ pub fn try_opening_cell(
     let cell_old_random = cell.random;
 
     cell.open_at = env.block.time.seconds() + config.cell_cooldown;
-    cell.random = block_random[0];
+
+    
+    if to_be_rewarded {
+        cell.random = block_random[0];
+    } else {
+        cell.random = std::cmp::min(cell.random + 1, u8::MAX);
+    }
 
 
     CELLS.insert(deps.storage, &cell_id, &cell)?;
@@ -167,7 +173,7 @@ pub fn try_opening_cell(
 
         Attribute {
             key: String::from("user_score"),
-            value: cell_old_random.to_string(),
+            value: user_random.to_string(),
             encrypted: true
         }
     ];
@@ -175,7 +181,7 @@ pub fn try_opening_cell(
 
     if to_be_rewarded {
         reward(
-            deps.as_ref(), 
+            deps, 
             env, 
             sender.clone(), 
             coin.denom,

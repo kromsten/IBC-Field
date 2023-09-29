@@ -1,7 +1,7 @@
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::Coin;
 use secret_toolkit::permit::Permit;
-use crate::state::{NetworkConfig, Powerup, AppStatus};
+use crate::state::{NetworkConfig, Powerup, AppStatus, Config};
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -24,6 +24,10 @@ pub enum ExecuteMsg {
 
     BuyPowerups {
         powerups: Vec<Powerup>,
+        permit: Permit,
+    },
+
+    RedeemReward {
         permit: Permit,
     },
 
@@ -78,7 +82,9 @@ pub enum QueryMsg {
 
     Main {
         permit: Option<Permit>
-    }
+    },
+
+    Config {}
 }
 
 #[cw_serde]
@@ -115,6 +121,7 @@ pub struct GetFieldResponse {
 
 #[cw_serde]
 pub struct MainPageResponse {
+    pub config: Config,
     pub cells: Vec::<CellResInfo>,
     pub powerups: Option<Vec::<(Powerup, u8)>>,
     pub network_configs: Vec::<(String, NetworkConfig)>

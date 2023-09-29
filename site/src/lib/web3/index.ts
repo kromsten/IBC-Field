@@ -11,7 +11,7 @@ import {
 } from "$env/static/public";
 import { getMainPageInfo } from "./contract";
 import type { Permit, SecretNetworkClient } from "secretjs";
-import { accountBalance } from "$lib/state";
+import { accountBalance, permitNonce, permitStore } from "$lib/state";
 
 export const connected = writable(false);
 export const signer = writable<any>();
@@ -28,21 +28,32 @@ export const getEnigmaUtils = async (chainId: string) => {
 export const getPermit = async (client?: SecretNetworkClient) : Promise<Permit | undefined> => {
   let permit : Permit | undefined = undefined;
   const localPermit = localStorage.getItem(`permit`);
+  const nonce = localStorage.getItem(`permit_nonce`) ?? (Math.round(Math.random() * 10_000)).toString();
 
   if (localPermit) {
     permit = JSON.parse(localPermit);
+
+    if (!permit?.params.allowed_tokens.includes(PUBLIC_CONTRACT_ADDRESS)) {
+      permit = undefined;
+      localStorage.removeItem(`permit`);
+    }
   } else if (client) {
     permit = await client.utils.accessControl.permit.sign(
       client.address,
       PUBLIC_CONSUMER_CHAIN_ID,
-      "test-permit",
+      "permit: "+ nonce,
       [PUBLIC_CONTRACT_ADDRESS],
       ["owner"],
       true
     )
     localStorage.setItem(`permit`, JSON.stringify(permit));
+    permitNonce.set(nonce);
   } else {
     //throw new Error(`Can't get Permit`);
+  }
+
+  if (permit) {
+    permitStore.set(permit);
   }
 
   return permit;
@@ -80,11 +91,8 @@ export const initWeb3 = async (chainId?: string | string[], wallet? : WalletType
 
 
 export const setupContractAndListeners = async () => {
-
   const permit = await getPermit();
-
   await getMainPageInfo(permit);
-
   return false;
 }
 

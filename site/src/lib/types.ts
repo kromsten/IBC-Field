@@ -7,6 +7,11 @@ export type GameCell = {
     open_at: Date;
 }
 
+export type Notification = {
+    status: "success" | "error" | "timeout";
+    message: string;
+    showed: boolean;
+}
 
 
 export enum Powerup {

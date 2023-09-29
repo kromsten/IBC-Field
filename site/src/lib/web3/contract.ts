@@ -1,11 +1,12 @@
 import { PUBLIC_CONSUMER_CHANNEL, PUBLIC_CONSUMER_TOKEN, PUBLIC_CONTRACT_ADDRESS, PUBLIC_CONTRACT_CODE_HASH, PUBLIC_SECRET_CHAIN_ENDPOINT, PUBLIC_SECRET_CHAIN_ID, PUBLIC_SECRET_CHANNEL } from "$env/static/public";
-import { coinFromString, type Permit, type SecretNetworkClient } from "secretjs";
+import { coinFromString, type IbcResponse, type Permit, type SecretNetworkClient, type TxResponse, type TxSender } from "secretjs";
 import { getClient } from "./clients";
 
 import { toNumber, toSecretIBCDenom } from "$lib/utils";
 import { cells, cloverCount, fertilizerCount, shovelCount } from "$lib/state";
 import { parseConfig } from "./game";
 import { Powerup, type Cell, type MainResult } from "$lib/types";
+import { processLocalTxResFailure, processLocalTxResSuccess, processRemoteTxResFailure, processIBCResSuccess } from "$lib/middleware";
 
 
 export const hookWrapper = (msg: object) => {
@@ -40,7 +41,8 @@ export const openCell = async (
     permit: Permit,
     powerups: Powerup[],
     amount: string,
-    autobuy: boolean
+    autobuy: boolean,
+    toastStore: any
 ) => {
 
     const contractMsg : any = {
@@ -56,17 +58,36 @@ export const openCell = async (
     }
 
 
-    const res =  await executeOverIBC(
-        client,
-        contractMsg,
-        amount
-    )
+    let res : TxResponse
+    try {
+        res =  await executeOverIBC(
+            client,
+            contractMsg,
+            amount
+        )
+        console.log("OPEN CELL RES:", res)
 
-    const ibcRes = await res.ibcResponses[0];
+    } catch (e) {
+        console.error("OPEN CELL ERROR:", e)
+        processLocalTxResFailure(e, toastStore);
+        return;
+    }
 
-    console.log("IBC RES:", ibcRes)
+    processLocalTxResSuccess(res, toastStore);
 
-    return res;
+    let ibcRes : IbcResponse
+    try {
+        ibcRes = await res.ibcResponses[0];
+        console.log("OPEN CELL IBC RES:", ibcRes)
+    } catch (e) {
+        console.error("OPEN CELL IBC ERROR:", e)
+        processRemoteTxResFailure(e, toastStore);
+        return;
+    }
+
+    processIBCResSuccess(ibcRes, toastStore);
+
+    return ibcRes;
 }
 
 
@@ -74,7 +95,8 @@ export const buyPowerup = async (
     client: SecretNetworkClient,
     permit: Permit,
     powerups: Powerup[],
-    amount: string
+    amount: string,
+    toastStore: any
 ) => {
 
     const contractMsg = {
@@ -83,17 +105,38 @@ export const buyPowerup = async (
             permit
         }
     }
-    const res =  await executeOverIBC(
-        client,
-        contractMsg,
-        amount
-    )
 
-    const ibcRes = await res.ibcResponses[0];
 
-    console.log("IBC RES:", ibcRes)
+    let res : TxResponse
+    try {
+        res =  await executeOverIBC(
+            client,
+            contractMsg,
+            amount
+        )
+        console.log("BUY POWERUP RES:", res)
 
-    return res;
+    } catch (e) {
+        console.error("BUY POWERUP ERROR:", e)
+        processLocalTxResFailure(e, toastStore);
+        return;
+    }
+
+    processLocalTxResSuccess(res, toastStore);
+
+    let ibcRes : IbcResponse
+    try {
+        ibcRes = await res.ibcResponses[0];
+        console.log("BUY POWERUP IBC RES:", ibcRes)
+    } catch (e) {
+        console.error("BUY POWERUP IBC ERROR:", e)
+        processRemoteTxResFailure(e, toastStore);
+        return;
+    }
+
+    processIBCResSuccess(ibcRes, toastStore);
+
+    return ibcRes;
 }
 
 

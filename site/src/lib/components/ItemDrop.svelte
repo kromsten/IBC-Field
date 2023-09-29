@@ -1,12 +1,16 @@
 <script lang="ts">
+  import { onSuccessfulIBCInteraction } from "$lib";
     import Akash from "$lib/components/graphics/Akash.svelte";
-    import { permit } from "$lib/state";
+    import { permitStore } from "$lib/state";
     import type { Powerup } from "$lib/types";
     import { fromNumber } from "$lib/utils";
     import { getPermit } from "$lib/web3";
     import { consumerSigningClient } from "$lib/web3/clients";
     import { buyPowerup } from "$lib/web3/contract";
+    import { getToastStore } from "@skeletonlabs/skeleton";
     import type { Permit } from "secretjs";
+
+    const toastStore = getToastStore();
     
     export let 
         type: Powerup,
@@ -24,9 +28,9 @@
         if (!loading) {
             
             const client = $consumerSigningClient;
-            const permitValue : Permit = $permit ?? await getPermit($consumerSigningClient);
+            const permitValue : Permit | undefined = $permitStore ?? await getPermit($consumerSigningClient);
 
-            if (permitValue == null) {
+            if (permitValue == undefined) {
                 console.error("No permit");
                 return;
             }
@@ -37,14 +41,16 @@
                 client,
                 permitValue,
                 Array(toBuy).fill(type),
-                fromNumber(price * toBuy)
+                fromNumber(price * toBuy),
+                toastStore
             )
             .then(() => {
                 // TODO: Parse events on secret side
+                onBuy(toBuy);
+                onSuccessfulIBCInteraction(client)
             })
             .finally(() => {
                 loading = false;
-                onBuy(toBuy);
             })
 
         }

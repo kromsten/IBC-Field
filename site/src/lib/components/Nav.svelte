@@ -51,7 +51,7 @@
         event: 'click',
         target: 'itemDropdown',
         placement: 'bottom',
-        closeQuery: "",
+        closeQuery: "p",
     };
 
 </script>

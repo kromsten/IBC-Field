@@ -7,7 +7,7 @@ use cosmwasm_std::{
     Env, 
     MessageInfo, 
     Response, 
-    StdResult
+    StdResult, Uint64
 };
 
 use rand_chacha::{
@@ -22,8 +22,8 @@ use secret_toolkit::permit::{Permit, RevokedPermits};
 use crate::{
     msg::{ExecuteMsg, QueryMsg, IBCLifecycleComplete, SudoMsg, InstantiateMsg, MainPageResponse}, 
     random::{randomness_seed}, error::ContractError,
-    ibc::{ibc_lifecycle_complete, ibc_timeout}, 
-    state::{CellState, CELLS, Config, CONFIG, FIELD_SIZE, NETWORK_CONFIGS, PERMITS_KEY}, 
+    ibc::{ibc_lifecycle_complete, ibc_timeout, ibc_transfer_accept}, 
+    state::{CellState, CELLS, Config, CONFIG, FIELD_SIZE, NETWORK_CONFIGS, PERMITS_KEY, PENDIND_IBC_REWARDS}, 
     field::{valid_field_size, try_opening_cell, get_field_cells}, utils::{address_from_permit, is_powerup_list_unique, is_chain_id_list_unique}, admin::{forwards_funds, set_app_status}, powerups::{try_buying_powerups, get_user_powerups}, networks::{get_all_network_configs, get_network_config}
 };
 
@@ -146,6 +146,32 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
             )
         },
 
+        ExecuteMsg::RedeemReward { 
+            permit,
+        } => {
+            let sender = address_from_permit(deps.as_ref(), &env, &permit)?;
+            RevokedPermits::revoke_permit(deps.storage, PERMITS_KEY, &sender, &permit.params.permit_name);
+
+            let reward = PENDIND_IBC_REWARDS.get(deps.storage, &sender);
+
+            if let Some(reward) = reward {
+
+                let config = NETWORK_CONFIGS.get(deps.storage, &reward.denom).unwrap();
+
+                ibc_transfer_accept(
+                    env,
+                    config.channel_id.unwrap(),
+                    sender,
+                    reward,
+                    Uint64::from(5*60u64)
+                )
+
+            } else {
+                Err(ContractError::Unauthorized{} )
+            }
+
+        },
+
         ExecuteMsg::SetAppStatus { status } => set_app_status(deps, info.sender, status),
         
         ExecuteMsg::ForwardsFunds {
@@ -164,20 +190,21 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::GetMyPowerups { permit } => to_binary(&get_user_powerups(deps, env, permit)?),
         QueryMsg::NetworkConfig { denom } => to_binary(&get_network_config(deps, denom)),
         QueryMsg::AllNetworkConfigs {} => to_binary(&get_all_network_configs(deps)?),
+        QueryMsg::Config {} => to_binary(&CONFIG.load(deps.storage)?),
         QueryMsg::Main { permit } => to_binary(&get_main(deps, env, permit)?),
     }
 }
 
 
 #[entry_point]
-pub fn sudo(_deps: DepsMut, _env: Env, msg: SudoMsg) -> Result<Response, ContractError> {
+pub fn sudo(deps: DepsMut, _env: Env, msg: SudoMsg) -> Result<Response, ContractError> {
     match msg {
         SudoMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCAck {
             channel,
             sequence,
             ack,
             success,
-        }) => ibc_lifecycle_complete(channel, sequence, ack, success),
+        }) => ibc_lifecycle_complete(deps, channel, sequence, ack, success),
 
         SudoMsg::IBCLifecycleComplete(IBCLifecycleComplete::IBCTimeout {
             channel,
@@ -192,6 +219,8 @@ pub fn get_main(
     env: Env, 
     permit: Option<Permit>
 ) -> StdResult<MainPageResponse> {
+
+    let config = CONFIG.load(deps.storage)?;
     let field_res = get_field_cells(deps)?;
 
     let powerups = if permit.is_some() {
@@ -206,9 +235,10 @@ pub fn get_main(
     };
 
     let network_configs = get_all_network_configs(deps)?;
-    
+
     Ok(MainPageResponse {
         cells: field_res.cells,
+        config,
         powerups,
         network_configs
     })

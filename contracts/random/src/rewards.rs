@@ -1,11 +1,11 @@
-use cosmwasm_std::{CosmosMsg, Attribute, BankMsg, Deps, coins, Env, IbcMsg, coin, IbcTimeout};
-use crate::{error::ContractError, state::NETWORK_CONFIGS};
+use cosmwasm_std::{CosmosMsg, Attribute, BankMsg, coins, Env, IbcMsg, coin, IbcTimeout, DepsMut};
+use crate::{error::ContractError, state::{NETWORK_CONFIGS, PENDIND_IBC_REWARDS}};
 
 const SCRT_DENOM : &str = "uscrt";
 
 
 pub fn reward(
-    deps: Deps,
+    deps: DepsMut,
     env: Env,
     to_address: String,
     denom: String,
@@ -28,10 +28,15 @@ pub fn reward(
             amount: coins(amount, SCRT_DENOM)
         }.into()
     } else {
+
+        let coin = coin(amount, denom);
+
+        PENDIND_IBC_REWARDS.insert(deps.storage, &to_address, &coin)?;
+
         IbcMsg::Transfer {
             channel_id: denom_config.channel_id.unwrap(),
-            to_address: to_address,
-            amount: coin(amount, denom),
+            to_address,
+            amount: coin,
             timeout: IbcTimeout::with_timestamp(
                 env.block.time.plus_seconds(5*60),
             ),

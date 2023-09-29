@@ -1,5 +1,6 @@
 use std::fmt;
 use cosmwasm_schema::cw_serde;
+use cosmwasm_std::Coin;
 use secret_toolkit::storage::iter_options::WithIter;
 use secret_toolkit::storage::{KeymapBuilder, Keymap, WithoutIter, Item};
 use secret_toolkit::serialization::{Bincode2, Json};
@@ -59,7 +60,6 @@ pub struct  NetworkConfig {
 }
 
 
-
 #[repr(u8)]
 enum Keys {
     Permits = b'p',
@@ -73,6 +73,8 @@ enum Keys {
     NetworkConfigs = b'n',
     Admin = b'a',
     AppStatus = b's',
+    ToReward = b't',
+    LastRewardRec = b'l'
 }
 
 impl Keys {
@@ -118,3 +120,9 @@ pub static NETWORK_CONFIGS: Keymap<String, NetworkConfig, Json> =
 
 pub static CELLS: Keymap<u8, CellState, Bincode2> =
             KeymapBuilder::new(Keys::Cells.as_bytes()).with_page_size(64).build();
+
+
+pub static PENDIND_IBC_REWARDS: Keymap<String, Coin, Bincode2, WithoutIter> = 
+            KeymapBuilder::new(Keys::ToReward.as_bytes()).without_iter().build();
+
+pub static LAST_REWARD_RECIPIENT: Item<String> = Item::new(Keys::LastRewardRec.as_bytes());

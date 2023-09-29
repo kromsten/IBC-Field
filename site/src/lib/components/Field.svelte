@@ -13,7 +13,7 @@
         event: 'click',
         target: 'digDropdown',
         placement: 'bottom',
-        closeQuery: ""
+        closeQuery: "p"
     };
 
     let now = new Date();
