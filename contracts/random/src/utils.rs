@@ -25,6 +25,7 @@ pub fn address_from_permit(
         env.contract.address.to_string(),
         None,
     )
+
 }
 
 

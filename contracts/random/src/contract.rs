@@ -16,14 +16,14 @@ use rand_chacha::{
         SeedableRng, CryptoRngCore
     }
 };
-use secret_toolkit::permit::Permit;
+use secret_toolkit::permit::{Permit, RevokedPermits};
 
 
 use crate::{
     msg::{ExecuteMsg, QueryMsg, IBCLifecycleComplete, SudoMsg, InstantiateMsg, MainPageResponse}, 
     random::{randomness_seed}, error::ContractError,
     ibc::{ibc_lifecycle_complete, ibc_timeout}, 
-    state::{CellState, CELLS, Config, CONFIG, FIELD_SIZE, NETWORK_CONFIGS}, 
+    state::{CellState, CELLS, Config, CONFIG, FIELD_SIZE, NETWORK_CONFIGS, PERMITS_KEY}, 
     field::{valid_field_size, try_opening_cell, get_field_cells}, utils::{address_from_permit, is_powerup_list_unique, is_chain_id_list_unique}, admin::{forwards_funds, set_app_status}, powerups::{try_buying_powerups, get_user_powerups}, networks::{get_all_network_configs, get_network_config}
 };
 
@@ -118,6 +118,7 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
         } => {
 
             let sender = address_from_permit(deps.as_ref(), &env, &permit)?;
+            RevokedPermits::revoke_permit(deps.storage, PERMITS_KEY, &sender, &permit.params.permit_name);
                 
             try_opening_cell(
                 deps, 
@@ -135,6 +136,8 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
             powerups,
         } => {
             let sender = address_from_permit(deps.as_ref(), &env, &permit)?;
+            RevokedPermits::revoke_permit(deps.storage, PERMITS_KEY, &sender, &permit.params.permit_name);
+
             try_buying_powerups(
                 deps, 
                 sender,
@@ -144,7 +147,6 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
         },
 
         ExecuteMsg::SetAppStatus { status } => set_app_status(deps, info.sender, status),
-
         
         ExecuteMsg::ForwardsFunds {
             to_address,
