@@ -6,10 +6,12 @@ import { getSigningClient } from "./clients";
 import { 
   PUBLIC_CONSUMER_CHAIN_ENDPOINT, 
   PUBLIC_CONSUMER_CHAIN_ID,
+  PUBLIC_CONSUMER_TOKEN,
   PUBLIC_CONTRACT_ADDRESS, 
 } from "$env/static/public";
 import { getMainPageInfo } from "./contract";
 import type { Permit, SecretNetworkClient } from "secretjs";
+import { accountBalance } from "$lib/state";
 
 export const connected = writable(false);
 export const signer = writable<any>();
@@ -61,19 +63,17 @@ export const initWeb3 = async (chainId?: string | string[], wallet? : WalletType
         signer.set(account.signer);
         address.set(account.address);
 
-        await getSigningClient(
+        return await getSigningClient(
           chainId,
           PUBLIC_CONSUMER_CHAIN_ENDPOINT,
           await getEnigmaUtils(chainId),
           account.address,
           account.signer
         );
-
-        return true;
       }
     }
 
-    return false;
+    return null;
 }
 
 
@@ -84,5 +84,15 @@ export const setupContractAndListeners = async () => {
   const permit = await getPermit();
 
   await getMainPageInfo(permit);
+
   return false;
+}
+
+
+export const getBalance = async (
+  client: SecretNetworkClient
+) => {
+  const res = await client.query.bank.allBalances({ address: client.address });
+  const balance =  res.balances!.find((b) => b.denom === PUBLIC_CONSUMER_TOKEN)?.amount ?? "0";
+  accountBalance.set(balance);
 }

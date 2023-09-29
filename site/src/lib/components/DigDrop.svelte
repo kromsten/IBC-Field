@@ -6,23 +6,22 @@
     import { cloverCount, cloverPrice, cloverSelected, fertilizerCount, fertilizerPrice, fertilizerSelected, openPrice, permit, shovelCount, shovelPrice, shovelSelected } from "$lib/state";
     import { openCell } from "$lib/web3/contract";
     import { consumerSigningClient } from "$lib/web3/clients";
-    import { clearSelection, fromNumber } from "$lib/utils";
+    import { clearSelection, fromNumber, toNumber } from "$lib/utils";
     import { getPermit } from "$lib/web3";
     import type { Permit } from "secretjs";
+    import { Powerup } from "$lib/types";
+
+    export let currentId : number
 
     let loading = false;
-    let totalPrice = $openPrice;
-
-    let params = {
-        autoBuy: false,
-    }
-
+    let totalPrice = toNumber($openPrice);
 
     let powerups : {
         [ key: string ] : { 
             active: boolean, 
             count: number,
             price: number, 
+            type: Powerup
             icon: typeof Shovel,
             toggle: () => void
         }
@@ -33,6 +32,7 @@
             active: false,
             price: $shovelPrice,
             count: $shovelCount,
+            type: Powerup.Shovel,
             icon: Shovel,
             toggle: () => shovelSelected.update(s => !s)
         },
@@ -40,6 +40,7 @@
             active: false,
             price: $cloverPrice,
             count: $cloverCount,
+            type: Powerup.Clover,
             icon: Clover,
             toggle: () => cloverSelected.update(s => !s)
         },
@@ -47,10 +48,15 @@
             active: false,
             price: $fertilizerPrice,
             count: $fertilizerCount,
+            type: Powerup.Fertilizer,
             icon: Fertilizer,
             toggle: () => fertilizerSelected.update(s => !s)
         }
     }
+
+    $: selectedPowerups = Object.values(powerups).filter(pup => pup.active)
+    $: autopay = selectedPowerups.filter(pup => pup.count == 0).length > 0
+    $: selectedPowerupTypes = selectedPowerups.map(pup => pup.type)
 
     const clear = () => {
         Object.keys(powerups).forEach(key => {
@@ -83,7 +89,6 @@
 
         if (!loading) {
 
-
             loading = true;
 
             const client = $consumerSigningClient;
@@ -98,10 +103,11 @@
 
             openCell(
                 client,
-                1,
+                currentId,
                 permitValue,
-                [],
-                fromNumber(totalPrice)
+                selectedPowerupTypes,
+                fromNumber(totalPrice),
+                autopay
             )
             .then(() => {
                 // TODO: Parse events on secret side

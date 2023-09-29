@@ -1,9 +1,8 @@
+import { localStorageStore } from '@skeletonlabs/skeleton';
 import type { Permit } from "secretjs";
-import { writable } from "svelte/store";
+import { writable, type Writable } from "svelte/store";
 import type { GameCell } from "./types";
 
-export const chainId = writable("");
-export const token = writable("");
 
 export const cells = writable<GameCell[]>([]);
 
@@ -23,7 +22,11 @@ export const fertilizerPrice = writable(20);
 export const fertilizerSelected = writable(false);
 
 
-export const openPrice = writable(100);
-export const winAmount = writable(10_000);
 
 export const permit = writable<Permit>();
+export const canOpenAt = writable<Date>(new Date());
+
+export const accountBalance = writable("0");
+
+export const openPrice = localStorageStore('open_price', '1000000');
+export const winAmount = localStorageStore('win_price', '100000000');

@@ -4,7 +4,7 @@ import { toNumber } from "$lib/utils"
 
 export const parseConfig = (config: NetworkConfigResult) => {
 
-    openPrice.set(toNumber(config.to_open))
+    openPrice.set(config.to_open)
         
     for (const [pup, price] of config.power_ups) {
         if (pup == Powerup.Clover) {

@@ -38,16 +38,21 @@ export const openCell = async (
     client: SecretNetworkClient,
     cell_id: number,
     permit: Permit,
-    powerups: [],
-    amount: string
+    powerups: Powerup[],
+    amount: string,
+    autobuy: boolean
 ) => {
 
-    const contractMsg = {
+    const contractMsg : any = {
         open_cell: {
             cell_id,
             powerups,
             permit
         }
+    }
+
+    if (autobuy) {
+        contractMsg.open_cell["power_up_autopay"] = true
     }
 
 
@@ -117,14 +122,17 @@ export const getMainPageInfo = async (
     permit?: Permit
 ) => {
     
-    const res : MainResult = await queryContract({
+    let res : MainResult = await queryContract({
         main: {
             permit
         }
     })
 
-    console.log("MAIN PAGE INFO:", res)
+    if (typeof res === "string" && (res as string).includes("error")) {
+        res = await queryContract({ main: {} })
+    }
 
+    console.log("MAIN PAGE INFO:", res)
 
     const tokenOnSecret = toSecretIBCDenom(
         PUBLIC_CONSUMER_TOKEN,
@@ -140,7 +148,6 @@ export const getMainPageInfo = async (
     } else {
         console.error("FATAL: The contract has no config fot this chain")
     }
-
 
     cells.set(
         res.cells

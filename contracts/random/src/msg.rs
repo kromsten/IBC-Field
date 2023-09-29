@@ -14,9 +14,6 @@ pub struct InstantiateMsg {
 
 #[cw_serde]
 pub enum ExecuteMsg {
-    UpdateMyRandomNumber {
-        permit: Permit
-    },
 
     OpenCell {
         cell_id: u8,
@@ -37,10 +34,7 @@ pub enum ExecuteMsg {
     ForwardsFunds {
         to_address: String,
         amount: Vec<Coin>,
-    },
-
-    #[serde(rename = "ibc_lifecycle_complete")]
-    IBCLifecycleComplete(IBCLifecycleComplete),
+    }
 }
 
 
@@ -72,9 +66,6 @@ pub enum QueryMsg {
 
     GetField {},
 
-    GetMyRandomNumber {
-        permit: Permit
-    },
     GetMyPowerups {
         permit: Permit
     },
