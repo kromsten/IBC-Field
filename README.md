@@ -73,6 +73,25 @@ Proceed into `site`folder and install the project using
 npm install 
 ```
 
+Fill the .env file following the example
+```
+PUBLIC_SECRET_CHAIN_ENDPOINT="http://localhost:1317"
+PUBLIC_SECRET_CHAIN_ID="test-1"
+PUBLIC_SECRET_TOKEN="uscrt"
+
+
+PUBLIC_CONSUMER_CHAIN_ENDPOINT="http://localhost:2317"
+PUBLIC_CONSUMER_CHAIN_ID="test-2"
+PUBLIC_CONSUMER_TOKEN="uscrt"
+
+PUBLIC_SECRET_CHANNEL="channel-0"
+PUBLIC_CONSUMER_CHANNEL="channel-0"
+
+PUBLIC_CONTRACT_ADDRESS="secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc"
+PUBLIC_CONTRACT_CODE_HASH="4870a18d4fe8fbf36abc842ab1e54400e24c2c6618486cdaf801ab8d5f725f6f"
+```
+
+
 You can run a develpemnt vite server using
 ```
 npm run dev
