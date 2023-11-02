@@ -4,6 +4,8 @@ Cross-chain game-like project that heavily utilises Secret Network as source of 
 
 Users can interact with cells to open them and have a chance of winning a bigger prize. The amount of interaction for each cell and each users is time-limited, however users can purchase powerups that allow them to pass the restrictions
 
+Public Demo deployed using Akash is coming soon after establishing IBC channels on testnets
+
 ## Interacting from Akash
 
 Thanks to the latest upgrade we can use IBC-Hooks to ineract with contracts on Secret Network from Akask. An akashian doesn't need to hold any $SCRT tokens to pay for the gas and. Users only need to submit an ibc-transfer transactions with a certain payload, gas for each is paid with native $AKT tokens or any other token accepted by validators of the Network 
