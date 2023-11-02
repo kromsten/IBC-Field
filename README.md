@@ -46,7 +46,7 @@ See the exact list of messages a user can take [here](/contracts/random/src/msg.
 
 ### Examples
 
-See the examples of how we to interacts with the contract over IBC from code of [a demo site](/site/src/lib/web3/contract.ts#L21) and [testing suite](/ibc-setup/tests/tests/field.test.ts#L46) in this repository
+See the examples of how to interact with the contract over IBC from code of [a demo site](/site/src/lib/web3/contract.ts#L21) and [testing suite](/ibc-setup/tests/tests/field.test.ts#L46) in this repository
 
 Keep in mind that here we have `SecretNetworkClient` only as a typescript type annotation. It is a helping wrapper from `secretjs` package for interacting with blockchain nodes and it is completely compatible with Akash Network (within our use case). Both `akashjs` and `cosmjs` can be used as well. `secretjs` was picked over them due to its additional helping functins related to IBC and also due to the fact that we would need it anyway for querying operations, so this way we have less dependencies.
 
