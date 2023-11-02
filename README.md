@@ -52,6 +52,8 @@ See the examples of how to interact with the contract over IBC from code of [a d
 
 Keep in mind that here we have `SecretNetworkClient` only as a typescript type annotation. It is a helping wrapper from `secretjs` package for interacting with blockchain nodes and it is completely compatible with Akash Network (within our use case). Both `akashjs` and `cosmjs` can be used as well. `secretjs` was picked over them due to its additional helping functins related to IBC and also due to the fact that we would need it anyway for querying operations, so this way we have less dependencies.
 
+Authenticating permits on client side is also relying on helping functions of `secretjs`. See [here](site/src/lib/web3/index.ts#L41). It is howeverusing standardised amino signature underneath so it can be replicate with other libraries and any wallet
+
 ## Installation
 
 You'd need amd64 based processor for running a local-secret, `docker-compose` (or latest docker with compose command)  for setting a local environment.
